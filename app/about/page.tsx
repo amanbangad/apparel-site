@@ -62,7 +62,7 @@ export default function AboutPage() {
               Look for her signature motifs throughout our special edition pieces!
             </p>
             <Button asChild>
-              <Link href="/categories/moo-deng-collection">Shop Moo Deng Collection</Link>
+              <Link href="/shop">Shop Our Collection</Link>
             </Button>
           </div>
           <div className="relative h-[300px] md:h-[400px] rounded-lg overflow-hidden order-1 md:order-2">

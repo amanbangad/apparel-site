@@ -82,26 +82,6 @@ export default function Footer() {
                   About Us
                 </Link>
               </li>
-              <li>
-                <Link href="/faq" className="text-muted-foreground hover:text-primary transition-colors">
-                  FAQ
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="text-muted-foreground hover:text-primary transition-colors">
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-muted-foreground hover:text-primary transition-colors">
-                  Returns
-                </Link>
-              </li>
-              <li>
-                <Link href="/size-guide" className="text-muted-foreground hover:text-primary transition-colors">
-                  Size Guide
-                </Link>
-              </li>
             </ul>
           </div>
         </div>
@@ -115,18 +95,6 @@ export default function Footer() {
               </span>
               <Heart className="h-4 w-4 mx-1 text-primary" />
               <span>for Moo Deng fans everywhere.</span>
-            </div>
-
-            <div className="flex space-x-6 text-sm">
-              <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-muted-foreground hover:text-primary transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="/cookies" className="text-muted-foreground hover:text-primary transition-colors">
-                Cookie Policy
-              </Link>
             </div>
           </div>
         </div>

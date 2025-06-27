@@ -46,7 +46,7 @@ export default function OfflinePage() {
               <Link href="/cart">Cart</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/wishlist">Wishlist</Link>
+              <Link href="/categories">Categories</Link>
             </Button>
           </div>
         </div>
