@@ -207,4 +207,3 @@ export default function ProductReviews({ productId }: ProductReviewsProps) {
     </div>
   )
 }
-

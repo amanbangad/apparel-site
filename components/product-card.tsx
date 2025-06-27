@@ -1,80 +1,109 @@
 "use client"
 
-import Link from "next/link"
 import Image from "next/image"
-import { Eye } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Eye, ShoppingCart } from "lucide-react"
 import type { Product } from "@/lib/data"
+import { useState } from "react"
+import ProductQuickView from "@/components/product-quick-view"
+import { motion } from "framer-motion"
+import { cardVariants } from "@/lib/animations"
+import { useCart } from "@/context/cart-context"
 
 interface ProductCardProps {
   product: Product
-  onQuickView: (productId: string) => void
 }
 
-export default function ProductCard({ product, onQuickView }: ProductCardProps) {
-  // Color mapping for UI display
-  const colorMap: Record<string, string> = {
-    Black: "bg-black",
-    White: "bg-white",
-    Navy: "bg-blue-900",
-    Gray: "bg-gray-500",
-    Blue: "bg-blue-600",
-    Beige: "bg-amber-100",
-    Olive: "bg-olive-600",
-    Khaki: "bg-yellow-700",
-    Cream: "bg-amber-50",
-    Red: "bg-red-600",
-    Green: "bg-green-600",
+export default function ProductCard({ product }: ProductCardProps) {
+  const [showQuickView, setShowQuickView] = useState(false)
+  const { addItem } = useCart()
+
+  const handleAddToCart = () => {
+    addItem(product, 1)
   }
 
   return (
-    <div className="group relative">
-      <Link href={`/products/${product.id}`} className="block">
-        <div className="overflow-hidden rounded-lg border bg-card">
-          <div className="relative aspect-square overflow-hidden">
-            <Image
-              src={product.image || "/placeholder.svg"}
-              alt={product.name}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="object-cover transition-transform group-hover:scale-105"
-              loading="lazy"
-              placeholder="blur"
-              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+P+/HgAFdwI2QVQp0QAAAABJRU5ErkJggg=="
-            />
-            {/* Quick view button */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+    <>
+      <motion.div
+        variants={cardVariants}
+        initial="hidden"
+        animate="visible"
+        whileHover="hover"
+        className="group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-300 hover:shadow-lg"
+      >
+        <div className="relative aspect-square overflow-hidden">
+          <Image
+            src={product.image || "/placeholder.svg?height=400&width=400"}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          {product.featured && (
+            <Badge className="absolute left-2 top-2 bg-primary text-primary-foreground">Featured</Badge>
+          )}
+          <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/20" />
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="flex flex-col gap-3">
               <Button
-                variant="secondary"
                 size="sm"
-                className="z-10"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onQuickView(product.id)
-                }}
+                variant="secondary"
+                onClick={() => setShowQuickView(true)}
+                className="bg-white/90 text-black hover:bg-white"
               >
-                <Eye className="mr-2 h-4 w-4" />
+                <Eye className="h-4 w-4 mr-2" />
                 Quick View
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={handleAddToCart}
+                className="bg-white/90 text-black hover:bg-white"
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
               </Button>
             </div>
           </div>
-          <div className="p-4">
-            <h3 className="font-medium">{product.name}</h3>
-            <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
-            <div className="mt-2 flex flex-wrap gap-1">
-              {product.colors.map((color) => (
-                <span
-                  key={`${product.id}-${color}`}
-                  className={`w-3 h-3 rounded-full ${colorMap[color] || "bg-gray-300"} border border-gray-300`}
-                  title={color}
-                />
-              ))}
-            </div>
-          </div>
         </div>
-      </Link>
-    </div>
+        <div className="p-4">
+          <div className="mb-2 flex items-start justify-between">
+            <h3 className="font-semibold leading-tight">
+              <Link href={`/products/${product.id}`} className="hover:underline">
+                {product.name}
+              </Link>
+            </h3>
+          </div>
+          <p className="mb-2 text-sm text-muted-foreground line-clamp-2">{product.description}</p>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            {product.colors && product.colors.length > 0 && (
+              <div className="flex gap-1">
+                {product.colors.slice(0, 3).map((color, index) => (
+                  <div
+                    key={index}
+                    className="h-4 w-4 rounded-full border border-gray-300"
+                    style={{ backgroundColor: color.toLowerCase() }}
+                    title={color}
+                  />
+                ))}
+                {product.colors.length > 3 && (
+                  <span className="text-xs text-muted-foreground">+{product.colors.length - 3}</span>
+                )}
+              </div>
+            )}
+          </div>
+          {product.sizes && product.sizes.length > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              {product.sizes.length} size{product.sizes.length !== 1 ? "s" : ""} available
+            </p>
+          )}
+        </div>
+      </motion.div>
+
+      <ProductQuickView product={product} isOpen={showQuickView} onClose={() => setShowQuickView(false)} />
+    </>
   )
 }
-

@@ -10,7 +10,7 @@ export default function AboutPage() {
       <div className="text-center mb-16">
         <h1 className="text-4xl font-bold mb-4">Our Story</h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Discover the journey behind StyleHub and our beloved mascot, Moo Deng.
+          Discover the journey behind Moo Deng, our beloved brand and mascot.
         </p>
       </div>
 
@@ -19,7 +19,7 @@ export default function AboutPage() {
         <div>
           <h2 className="text-3xl font-bold mb-4">About {SITE_NAME}</h2>
           <p className="text-muted-foreground mb-4">
-            Founded in 2020, StyleHub was born from a passion for sustainable fashion and a desire to create apparel
+            Founded in 2020, Moo Deng was born from a passion for sustainable fashion and a desire to create apparel
             that doesn't compromise on style or ethics. We believe that clothing should be made to last, with materials
             that respect our planet.
           </p>
@@ -35,7 +35,7 @@ export default function AboutPage() {
         <div className="relative h-[400px] rounded-lg overflow-hidden">
           <Image
             src="https://animalfactguide.com/wp-content/uploads/2020/12/hippo.jpg"
-            alt="StyleHub studio"
+            alt="Moo Deng studio"
             fill
             className="object-cover"
           />
@@ -48,8 +48,8 @@ export default function AboutPage() {
           <div className="order-2 md:order-1">
             <h2 className="text-3xl font-bold mb-4">Meet Moo Deng</h2>
             <p className="text-muted-foreground mb-4">
-              Moo Deng, our adorable hippo mascot, has become the heart and soul of StyleHub. With her charming pink hue
-              and playful personality, she represents our brand's commitment to bringing joy and comfort to everyday
+              Moo Deng, our adorable hippo mascot, has become the heart and soul of our brand. With her charming pink
+              hue and playful personality, she represents our brand's commitment to bringing joy and comfort to everyday
               fashion.
             </p>
             <p className="text-muted-foreground mb-4">
@@ -68,7 +68,7 @@ export default function AboutPage() {
           <div className="relative h-[300px] md:h-[400px] rounded-lg overflow-hidden order-1 md:order-2">
             <Image
               src="https://i.natgeofe.com/n/51e55eeb-dfbe-4b43-9079-685ee97c449d/naturepl_01154678_2x3.jpg"
-              alt="Moo Deng, the StyleHub mascot"
+              alt="Moo Deng, the brand mascot"
               fill
               className="object-cover"
             />
@@ -155,29 +155,8 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Team Section */}
-      <div className="mb-20">
-        <h2 className="text-3xl font-bold mb-8 text-center">Our Team</h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="text-center">
-              <div className="relative h-64 mb-4 rounded-lg overflow-hidden">
-                <Image
-                  src={`https://thumbs.dreamstime.com/b/unhappy-sad-developer-programmer-man-stress-coding-software-unhappy-sad-developer-programmer-man-stress-coding-software-348706138.jpg`}
-                  alt={`Team member ${i}`}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="font-semibold">Team Member {i}</h3>
-              <p className="text-muted-foreground">Position</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Moo Deng's Impact */}
-      <div className="bg-muted p-8 rounded-xl mb-20">
+      <div className="bg-muted p-8 rounded-xl">
         <h2 className="text-3xl font-bold mb-6 text-center">Moo Deng's Impact</h2>
         <div className="grid md:grid-cols-2 gap-8">
           <div>
@@ -203,24 +182,6 @@ export default function AboutPage() {
           </div>
         </div>
       </div>
-
-      {/* CTA Section */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-4">Join the {SITE_NAME} Family</h2>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Become part of our story and discover apparel that combines style, comfort, and the playful spirit of Moo
-          Deng.
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild size="lg">
-            <Link href="/shop">Shop Now</Link>
-          </Button>
-          <Button variant="outline" size="lg">
-            <Link href="/contact">Contact Us</Link>
-          </Button>
-        </div>
-      </div>
     </div>
   )
 }
-

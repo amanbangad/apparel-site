@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { trackFbEvent } from "@/lib/analytics"
 
@@ -116,12 +116,13 @@ export default function CheckoutSuccessPage() {
   }, [])
 
   return (
-    <div className="container py-16 max-w-2xl mx-auto" itemScope itemType="http://schema.org/Order">
-      <meta itemProp="orderNumber" content={orderId} />
-      <meta itemProp="orderStatus" content="http://schema.org/OrderDelivered" />
-      <meta itemProp="orderDate" content={new Date().toISOString()} />
-      <meta itemProp="id" content={orderId} />
-
+    <div
+      className="container py-16 max-w-2xl mx-auto"
+      data-order-number={orderId}
+      data-order-status="OrderDelivered"
+      data-order-date={new Date().toISOString()}
+      data-order-id={orderId}
+    >
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
           <CheckCircle className="h-8 w-8 text-primary" />
@@ -182,7 +183,7 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
 
-      {/* Order Items with Microdata */}
+      {/* Order Items with Data Attributes */}
       <div className="border rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Items Ordered</h2>
         <div className="space-y-4">
@@ -190,31 +191,24 @@ export default function CheckoutSuccessPage() {
             <div
               key={`${item.product.id}-${item.size}-${item.color}`}
               className="flex items-start border-b pb-4 last:border-0 last:pb-0"
-              itemScope
-              itemType="http://schema.org/Product"
-              itemProp="orderedItem"
+              data-product-id={item.product.id}
+              data-product-name={item.product.name}
+              data-product-image={item.product.image}
+              data-product-sku={`MD-${item.product.id}`}
             >
-              <meta itemProp="productID" content={item.product.id} />
-              <meta itemProp="name" content={item.product.name} />
-              <meta itemProp="image" content={item.product.image} />
-              <meta itemProp="id" content={item.product.id} />
-              <meta itemProp="sku" content={`MD-${item.product.id}`} />
-
               <div className="flex-1">
-                <h3 className="font-medium" itemProp="name">
-                  {item.product.name}
-                </h3>
+                <h3 className="font-medium">{item.product.name}</h3>
                 <p className="text-sm text-muted-foreground">
                   {item.size && `Size: ${item.size}`}
                   {item.size && item.color && " | "}
                   {item.color && `Color: ${item.color}`}
                 </p>
-                <div itemScope itemType="http://schema.org/Offer" itemProp="offers">
-                  <meta itemProp="price" content={String(item.product.price)} />
-                  <meta itemProp="priceCurrency" content="USD" />
-                  <meta itemProp="itemCondition" content="http://schema.org/NewCondition" />
-                  <meta itemProp="availability" content="http://schema.org/InStock" />
-                </div>
+                <div
+                  data-offer-price={item.product.price}
+                  data-offer-currency="USD"
+                  data-offer-condition="NewCondition"
+                  data-offer-availability="InStock"
+                />
               </div>
               <div className="text-right">
                 <p className="font-medium">
@@ -241,4 +235,3 @@ export default function CheckoutSuccessPage() {
     </div>
   )
 }
-
