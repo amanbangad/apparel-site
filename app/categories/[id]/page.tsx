@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { products as ALL_PRODUCTS } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/* Category map (id -> pretty name). Replace or extend as needed.             */
+/* Category map (slug → human-readable). Extend as needed.                    */
 /* -------------------------------------------------------------------------- */
 const CATEGORY_NAMES: Record<string, string> = {
   shirts: "Shirts",
@@ -17,9 +17,15 @@ const CATEGORY_NAMES: Record<string, string> = {
 /* -------------------------------------------------------------------------- */
 /* Page component                                                             */
 /* -------------------------------------------------------------------------- */
-
-export default function CategoryPage({ params }: { params: { id: string } }) {
-  const { id } = params
+export default function CategoryPage({
+  params,
+}: {
+  // use `any` internally to avoid Next.js' PageProps constraint issues
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}) {
+  const id = String(params.id ?? "")
   const categoryName = CATEGORY_NAMES[id]
 
   if (!categoryName) notFound()
@@ -46,8 +52,14 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
 /* -------------------------------------------------------------------------- */
 /* SEO                                                                        */
 /* -------------------------------------------------------------------------- */
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const name = CATEGORY_NAMES[params.id]
+export function generateMetadata({
+  params,
+}: {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}): Metadata {
+  const name = CATEGORY_NAMES[String(params.id ?? "")]
   return {
     title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
     description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,

@@ -1,8 +1,7 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
-
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 /* -------------------------------------------------------------------------- */
@@ -21,32 +20,30 @@ export interface Product {
 /* -------------------------------------------------------------------------- */
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <Card className="group overflow-hidden">
-      <Link href={`/products/${product.id}`} className="block">
-        <div className="relative h-56 w-full overflow-hidden bg-muted">
-          <Image
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-105"
-          />
-        </div>
+    <article
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md",
+      )}
+    >
+      <Link href={`/products/${product.id}`} className="relative block h-56 w-full">
+        <Image
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+        />
       </Link>
 
-      <CardContent className="p-4 flex flex-col gap-2">
-        <h3 className={cn("text-lg font-medium truncate")}>{product.name}</h3>
-        <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
-
-        <Button asChild size="sm" className="mt-auto">
-          <Link href={`/products/${product.id}`}>View product</Link>
-        </Button>
-      </CardContent>
-    </Card>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <h3 className="text-sm font-medium">{product.name}</h3>
+        <p className="mt-auto text-base font-semibold">${product.price.toFixed(2)}</p>
+      </div>
+    </article>
   )
 }
 
 /* -------------------------------------------------------------------------- */
-/* Default export keeps backwards-compatibility                               */
+/* Default export (for backwards-compat)                                      */
 /* -------------------------------------------------------------------------- */
 export default ProductCard
