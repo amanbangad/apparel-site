@@ -2,7 +2,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, getProductsByCategory } from "@/lib/data"
-import { use } from "react"
 
 interface CategoryPageProps {
   params: {
@@ -10,17 +9,8 @@ interface CategoryPageProps {
   }
 }
 
-function isPromiseLike<T>(obj: unknown): obj is PromiseLike<T> {
-  return typeof obj === 'object' && obj !== null && 'then' in obj && typeof (obj as { then: unknown }).then === 'function';
-}
-
 export default function CategoryPage({ params }: CategoryPageProps) {
-  let id: string
-  if (isPromiseLike<{ id: string }>(params)) {
-    id = (use(params) as { id: string }).id
-  } else {
-    id = (params as { id: string }).id
-  }
+  const { id } = params
   // Check if the category ID exists
   const category = categories.find((c) => c.id === id)
 
