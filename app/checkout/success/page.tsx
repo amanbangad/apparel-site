@@ -1,5 +1,7 @@
 "use client"
 
+/* eslint-disable react-hooks/exhaustive-deps */
+
 import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -73,12 +75,16 @@ export default function CheckoutSuccessPage() {
   const shipping = subtotal > 50 ? 0 : 5.99
   const total = subtotal + shipping
 
+  // Prefer the total saved in checkoutDetails (if present) so the UI reflects any
+  // discounts, tax, etc. recorded at checkout time.
+  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutDetails | null>(null)
+  const displayTotal = checkoutDetails?.order.total ?? total
+
   /* -------------------------------------------------- */
   /* Local State for IDs / Dates                        */
   /* -------------------------------------------------- */
   const [orderId, setOrderId] = useState<string | null>(null)
   const [orderDate, setOrderDate] = useState<string | null>(null)
-  const [checkoutDetails, setCheckoutDetails] = useState<CheckoutDetails | null>(null)
 
   /* -------------------------------------------------------------------------- */
   /* One-time order processing (analytics, clear cart)                           */
@@ -158,7 +164,7 @@ export default function CheckoutSuccessPage() {
         <h2 className="mb-4 text-xl font-semibold">Order Details</h2>
         <InfoLine label="Order Number" value={orderId} />
         <InfoLine label="Date" value={new Date(orderDate).toLocaleDateString()} />
-        <InfoLine label="Total" value={`$${total.toFixed(2)}`} />
+        <InfoLine label="Total" value={`$${displayTotal.toFixed(2)}`} />
       </section>
 
       {/* Items */}
