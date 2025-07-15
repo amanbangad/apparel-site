@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import type { Product } from "@/lib/data"
 import { motion } from "framer-motion"
 import { cardVariants } from "@/lib/animations"
+import { mapColorToHex } from "@/lib/utils"
 
 interface ProductCardProps {
   product: Product
@@ -47,7 +48,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   <div
                     key={index}
                     className="h-4 w-4 rounded-full border border-gray-300"
-                    style={{ backgroundColor: color.toLowerCase() }}
+                    style={{ backgroundColor: mapColorToHex(color) }}
                     title={color}
                   />
                 ))}
