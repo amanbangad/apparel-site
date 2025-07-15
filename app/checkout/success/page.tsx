@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
 import { useCart } from "@/context/cart-context"
+import { useRouter } from "next/navigation"
 import { trackFbEvent } from "@/lib/analytics"
 
 type CheckoutDetails = {
@@ -42,6 +42,7 @@ type CheckoutDetails = {
 }
 
 export default function CheckoutSuccessPage() {
+  const router = useRouter()
   const { items, clearCart } = useCart()
   const [orderId, setOrderId] = useState<string | null>(null)
   const [orderDate, setOrderDate] = useState<string | null>(null)
@@ -52,6 +53,11 @@ export default function CheckoutSuccessPage() {
   const shipping = subtotal > 50 ? 0 : 5.99
   const total = subtotal + shipping
 
+  /**
+   * Handles post-purchase work (analytics + empty cart).
+   * All referenced values are in the dependency list,
+   * so ESLint’s `react-hooks/exhaustive-deps` rule is satisfied.
+   */
   const handleOrderProcessing = useCallback(() => {
     // Only run on client
     let id = localStorage.getItem("orderId")
@@ -77,6 +83,26 @@ export default function CheckoutSuccessPage() {
       } catch (error) {
         console.error("Failed to parse checkout details", error)
       }
+    }
+
+    // Example analytics call; wrap with safety check to satisfy eslint-no-unused-expr
+    if (typeof window !== "undefined" && (window as any).fbq) {
+      ;(window as any).fbq("track", "Purchase", {
+        value: details?.order.total || total,
+        currency: "USD",
+        items:
+          details?.order.items ||
+          items.map((item) => ({
+            id: item.product.id,
+            quantity: item.quantity,
+            item_price: item.product.price,
+            name: item.product.name,
+            category: item.product.category,
+            variant: item.color || "",
+            brand: "Moo Deng",
+          })),
+        shipping: details?.order.shipping || shipping,
+      })
     }
 
     // Track Purchase event with enhanced details and microdata
@@ -122,7 +148,7 @@ export default function CheckoutSuccessPage() {
       status: "completed",
     })
 
-    // Clear the cart after purchase
+    // Empty the cart after successful purchase
     clearCart()
 
     // Clean up checkout details from localStorage
@@ -136,22 +162,14 @@ export default function CheckoutSuccessPage() {
   if (!orderId || !orderDate) return null
 
   return (
-    <div
-      className="container py-16 max-w-2xl mx-auto"
-      data-order-number={orderId}
-      data-order-status="OrderDelivered"
-      data-order-date={orderDate}
-      data-order-id={orderId}
-    >
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-          <CheckCircle className="h-8 w-8 text-primary" />
-        </div>
-        <h1 className="text-3xl font-bold mb-2">Order Confirmed!</h1>
-        <p className="text-muted-foreground">
-          Thank you for your purchase. Your order has been received and is being processed.
-        </p>
+    <main className="container mx-auto max-w-lg px-4 py-20 text-center">
+      <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+        <CheckCircle className="h-8 w-8 text-primary" />
       </div>
+      <h1 className="mb-4 text-4xl font-bold">Thank you for your purchase!</h1>
+      <p className="mb-8 text-muted-foreground">
+        Your order has been placed successfully. A confirmation email will arrive shortly.
+      </p>
 
       <div className="border rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Order Details</h2>
@@ -241,17 +259,7 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
 
-      <div className="text-center">
-        <p className="mb-6">We&apos;ve sent a confirmation email to your inbox with all the details of your order.</p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Button asChild>
-            <Link href="/shop">Continue Shopping</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/">Back to Home</Link>
-          </Button>
-        </div>
-      </div>
-    </div>
+      <Button onClick={() => router.push("/")}>Continue shopping</Button>
+    </main>
   )
 }

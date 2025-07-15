@@ -12,7 +12,7 @@ interface ProductCardProps {
   product: Product
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/products/${product.id}`} className="block">
       <motion.div
@@ -68,3 +68,6 @@ export default function ProductCard({ product }: ProductCardProps) {
     </Link>
   )
 }
+
+export { ProductCard }
+export default ProductCard
