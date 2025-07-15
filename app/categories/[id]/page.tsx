@@ -1,26 +1,21 @@
-import Image from "next/image"
-import Link from "next/link"
 import { notFound } from "next/navigation"
-import { categories, getProductsByCategory } from "@/lib/data"
+import { ProductCard } from "@/components/product-card"
+import { products, categories } from "@/lib/data"
 
 interface CategoryPageProps {
-  params: {
-    id: string
-  }
+  params: Promise<{ id: string }>
 }
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const { id } = params
-  // Check if the category ID exists
-  const category = categories.find((c) => c.id === id)
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { id } = await params
 
-  // If category doesn't exist, show the not-found page
+  const category = categories.find((cat) => cat.id === id)
+
   if (!category) {
     notFound()
   }
 
-  // Get products for this category
-  const products = getProductsByCategory(id)
+  const categoryProducts = products.filter((product) => product.category === id)
 
   return (
     <div className="container py-8">
@@ -29,36 +24,23 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         <p className="text-muted-foreground">{category.description}</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <Link key={product.id} href={`/products/${product.id}`} className="group">
-            <div className="overflow-hidden rounded-lg border bg-card">
-              <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium">{product.name}</h3>
-                <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {products.length === 0 && (
+      {categoryProducts.length === 0 ? (
         <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-2">No products found</h2>
-          <p className="text-muted-foreground mb-6">We couldn&apos;t find any products in this category.</p>
-          <Link href="/shop" className="text-primary hover:underline">
-            View all products
-          </Link>
+          <p className="text-muted-foreground">No products found in this category.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {categoryProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       )}
     </div>
   )
+}
+
+export async function generateStaticParams() {
+  return categories.map((category) => ({
+    id: category.id,
+  }))
 }

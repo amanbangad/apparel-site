@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
@@ -52,8 +52,7 @@ export default function CheckoutSuccessPage() {
   const shipping = subtotal > 50 ? 0 : 5.99
   const total = subtotal + shipping
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+  const handleOrderProcessing = useCallback(() => {
     // Only run on client
     let id = localStorage.getItem("orderId")
     let date = localStorage.getItem("orderDate")
@@ -128,9 +127,13 @@ export default function CheckoutSuccessPage() {
 
     // Clean up checkout details from localStorage
     localStorage.removeItem("checkoutDetails")
-  }, [])
+  }, [items, clearCart, shipping, total])
 
-  if (!orderId || !orderDate) return null;
+  useEffect(() => {
+    handleOrderProcessing()
+  }, [handleOrderProcessing])
+
+  if (!orderId || !orderDate) return null
 
   return (
     <div
