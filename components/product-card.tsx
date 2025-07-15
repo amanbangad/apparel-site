@@ -2,48 +2,70 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { cn } from "@/lib/utils"
+import { motion } from "framer-motion"
+
+import { Button } from "@/components/ui/button"
+import AddToCartButton from "@/components/add-to-cart-button"
 
 /* -------------------------------------------------------------------------- */
-/* Types                                                                      */
+/*                                    Types                                   */
 /* -------------------------------------------------------------------------- */
+
 export interface Product {
   id: string
   name: string
   price: number
   image: string
   category: string
+  sizes?: string[]
+  colors?: string[]
 }
 
 /* -------------------------------------------------------------------------- */
-/* Component                                                                  */
+/*                                ProductCard                                 */
 /* -------------------------------------------------------------------------- */
+
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article
-      className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md",
-      )}
+    <motion.article
+      className="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden flex flex-col"
+      whileHover={{ scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 260, damping: 20 }}
     >
-      <Link href={`/products/${product.id}`} className="relative block h-56 w-full">
+      <Link href={`/products/${product.id}`} className="relative aspect-square w-full overflow-hidden">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}
           fill
+          className="object-cover transition-transform duration-300 hover:scale-105"
           sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          priority={false}
         />
       </Link>
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="text-sm font-medium">{product.name}</h3>
-        <p className="mt-auto text-base font-semibold">${product.price.toFixed(2)}</p>
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <h3 className="text-lg font-medium line-clamp-1">{product.name}</h3>
+        <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
+
+        <div className="mt-auto flex gap-2">
+          <Button asChild className="w-full">
+            <Link href={`/products/${product.id}`}>View</Link>
+          </Button>
+
+          {/* Minimal Add-to-Cart (default size/color if omitted) */}
+          <AddToCartButton
+            product={product}
+            selectedSize={product.sizes?.[0] ?? ""}
+            selectedColor={product.colors?.[0] ?? ""}
+          />
+        </div>
       </div>
-    </article>
+    </motion.article>
   )
 }
 
 /* -------------------------------------------------------------------------- */
-/* Default export (for backwards-compat)                                      */
+/*                              Default export                                */
 /* -------------------------------------------------------------------------- */
+
 export default ProductCard

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -16,7 +17,7 @@ import { Spinner } from "@/components/ui/spinner"
 import PageTransition from "@/components/page-transition"
 import { AnimatePresence } from "framer-motion"
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+export default function ProductPage({ params }: any) {
   const { id } = params
   const product = getProductById(id)
   const [selectedSize, setSelectedSize] = useState<string>(product?.sizes?.[0] || "")

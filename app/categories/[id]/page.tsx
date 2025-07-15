@@ -1,67 +1,55 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { ProductCard, type Product } from "@/components/product-card"
-import { cn } from "@/lib/utils"
-import { products as ALL_PRODUCTS } from "@/lib/data"
+import ProductCard, { type Product } from "@/components/product-card"
+import { getProductsByCategory, getCategoryById } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/* Category map (slug → human-readable). Extend as needed.                    */
+/*                             Static Site Data                               */
 /* -------------------------------------------------------------------------- */
-const CATEGORY_NAMES: Record<string, string> = {
-  shirts: "Shirts",
-  hoodies: "Hoodies",
-  shorts: "Shorts",
+
+export const dynamicParams = false // pre-generate all category pages
+
+export async function generateStaticParams() {
+  return getCategoryById("*").map((cat) => ({ id: cat.id }))
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string }
+}): Promise<Metadata> {
+  const category = getCategoryById(params.id)
+  if (!category) notFound()
+
+  return {
+    title: `${category.name} • Apparel`,
+    description: `Browse all ${category.name} in our store`,
+  }
 }
 
 /* -------------------------------------------------------------------------- */
-/* Page component                                                             */
+/*                                 Page Component                             */
 /* -------------------------------------------------------------------------- */
+
 export default function CategoryPage({
   params,
 }: {
-  // use `any` internally to avoid Next.js' PageProps constraint issues
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  params: any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  params: { id: string }
 }) {
-  const id = String(params.id ?? "")
-  const categoryName = CATEGORY_NAMES[id]
+  const products: Product[] = getProductsByCategory(params.id)
 
-  if (!categoryName) notFound()
-
-  const filtered: Product[] = ALL_PRODUCTS.filter((p) => p.category === id)
+  if (!products?.length) notFound()
 
   return (
-    <main className={cn("container mx-auto px-4 py-16")}>
-      <h1 className="mb-8 text-3xl font-bold">{categoryName}</h1>
+    <main className="container py-10">
+      <h1 className="text-3xl font-bold mb-8 capitalize">{params.id}</h1>
 
-      {filtered.length === 0 ? (
-        <p>No products found in this category.</p>
-      ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-      )}
+      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        {products.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </section>
     </main>
   )
-}
-
-/* -------------------------------------------------------------------------- */
-/* SEO                                                                        */
-/* -------------------------------------------------------------------------- */
-export function generateMetadata({
-  params,
-}: {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  params: any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-}): Metadata {
-  const name = CATEGORY_NAMES[String(params.id ?? "")]
-  return {
-    title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
-    description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,
-  }
 }
