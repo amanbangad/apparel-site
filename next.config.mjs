@@ -1,48 +1,40 @@
-let userConfig = undefined
-try {
-  userConfig = await import('./v0-user-next.config')
-} catch (e) {
-  // ignore error
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
-  },
-  images: {
-    unoptimized: true,
+    ignoreBuildErrors: false,
   },
   experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    optimizeCss: false, // Disable CSS optimization to avoid critters dependency
+    optimizePackageImports: ['lucide-react'],
   },
-}
-
-mergeConfig(nextConfig, userConfig)
-
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      }
-    } else {
-      nextConfig[key] = userConfig[key]
-    }
-  }
+  images: {
+    domains: [
+      'images.unsplash.com',
+      'www.american-giant.com',
+      's7d2.scene7.com',
+      'gwestblanks.com',
+      'ychef.files.bbci.co.uk',
+      'animalfactguide.com',
+      'i.natgeofe.com'
+    ],
+    unoptimized: true,
+  },
+  // Uncomment to analyze bundle size
+  // webpack: (config, { isServer }) => {
+  //   if (!isServer) {
+  //     const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
+  //     config.plugins.push(
+  //       new BundleAnalyzerPlugin({
+  //         analyzerMode: 'static',
+  //         openAnalyzer: false,
+  //       })
+  //     )
+  //   }
+  //   return config
+  // },
 }
 
 export default nextConfig

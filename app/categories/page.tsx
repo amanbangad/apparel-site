@@ -8,7 +8,7 @@ export default function CategoriesPage() {
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold mb-2">Shop by Category</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
-          Browse our collection by category to find exactly what you're looking for.
+          Browse our collection by category to find exactly what you&apos;re looking for.
         </p>
       </div>
 
@@ -35,4 +35,3 @@ export default function CategoriesPage() {
     </div>
   )
 }
-

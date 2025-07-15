@@ -8,13 +8,14 @@ import Footer from "@/components/footer"
 import SkipToContent from "@/components/skip-to-content"
 import { SITE_NAME } from "@/lib/constants"
 import { CartProvider } from "@/context/cart-context"
-import { WishlistProvider } from "@/context/wishlist-context"
+import ResourcePreloader from "@/components/resource-preloader"
+import PWAInstallPrompt from "@/components/pwa-install-prompt"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | Modern Apparel`,
-  description: "Find the latest fashion trends at StyleHub",
+  description: "Find the latest fashion trends at Moo Deng",
     generator: 'v0.dev'
 }
 
@@ -42,6 +43,7 @@ export default function RootLayout({
           `}
         </Script>
         <noscript>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             height="1"
             width="1"
@@ -51,25 +53,42 @@ export default function RootLayout({
           />
         </noscript>
         {/* End Meta Pixel Code */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#000000" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Moo Deng" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className={inter.className}>
         <CartProvider>
-          <WishlistProvider>
-            <div className="flex min-h-screen flex-col">
-              <SkipToContent />
-              <Navbar />
-              <main id="main-content" className="flex-1">
-                {children}
-              </main>
-              <Footer />
-            </div>
-          </WishlistProvider>
+          <div className="flex min-h-screen flex-col">
+            <SkipToContent />
+            <Navbar />
+            <main id="main-content" className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+          <ResourcePreloader />
+          <PWAInstallPrompt />
         </CartProvider>
+        <Script id="sw-register" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                  .then(function(registration) {
+                    console.log('SW registered: ', registration);
+                  })
+                  .catch(function(registrationError) {
+                    console.log('SW registration failed: ', registrationError);
+                  });
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   )
 }
-
-
-
-import './globals.css'

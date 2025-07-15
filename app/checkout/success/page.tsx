@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { CheckCircle } from 'lucide-react'
+import { CheckCircle } from "lucide-react"
 import { useCart } from "@/context/cart-context"
 import { trackFbEvent } from "@/lib/analytics"
 
@@ -43,7 +43,8 @@ type CheckoutDetails = {
 
 export default function CheckoutSuccessPage() {
   const { items, clearCart } = useCart()
-  const [orderId] = useState(`ORD-${Math.floor(Math.random() * 1000000)}`)
+  const [orderId, setOrderId] = useState<string | null>(null)
+  const [orderDate, setOrderDate] = useState<string | null>(null)
   const [checkoutDetails, setCheckoutDetails] = useState<CheckoutDetails | null>(null)
 
   // Calculate order total from items (fallback if checkout details aren't available)
@@ -52,10 +53,23 @@ export default function CheckoutSuccessPage() {
   const total = subtotal + shipping
 
   useEffect(() => {
+    // Only run on client
+    let id = localStorage.getItem("orderId")
+    let date = localStorage.getItem("orderDate")
+    if (!id) {
+      id = `ORD-${Math.floor(Math.random() * 1000000)}`
+      localStorage.setItem("orderId", id)
+    }
+    if (!date) {
+      date = new Date().toISOString()
+      localStorage.setItem("orderDate", date)
+    }
+    setOrderId(id)
+    setOrderDate(date)
+
     // Get checkout details from localStorage
     const storedDetails = localStorage.getItem("checkoutDetails")
     let details: CheckoutDetails | null = null
-
     if (storedDetails) {
       try {
         details = JSON.parse(storedDetails)
@@ -80,7 +94,7 @@ export default function CheckoutSuccessPage() {
       num_items: items.reduce((sum, item) => sum + item.quantity, 0),
       value: details?.order.total || total,
       currency: "USD",
-      order_id: orderId,
+      order_id: id,
       // Enhanced details for Meta Pixel with microdata
       content_type: "product_group",
       content_name: "Purchase Confirmation",
@@ -101,10 +115,10 @@ export default function CheckoutSuccessPage() {
         },
       },
       payment_info: {
-        method: details?.payment.cardType || "Credit Card",
-        last4: details?.payment.cardLast4,
+        method: details?.payment?.cardType || "Credit Card",
+        last4: details?.payment?.cardLast4,
       },
-      transaction_id: orderId,
+      transaction_id: id,
       status: "completed",
     })
 
@@ -115,13 +129,16 @@ export default function CheckoutSuccessPage() {
     localStorage.removeItem("checkoutDetails")
   }, [])
 
-  return (
-    <div className="container py-16 max-w-2xl mx-auto" itemScope itemType="http://schema.org/Order">
-      <meta itemProp="orderNumber" content={orderId} />
-      <meta itemProp="orderStatus" content="http://schema.org/OrderDelivered" />
-      <meta itemProp="orderDate" content={new Date().toISOString()} />
-      <meta itemProp="id" content={orderId} />
+  if (!orderId || !orderDate) return null;
 
+  return (
+    <div
+      className="container py-16 max-w-2xl mx-auto"
+      data-order-number={orderId}
+      data-order-status="OrderDelivered"
+      data-order-date={orderDate}
+      data-order-id={orderId}
+    >
       <div className="text-center mb-8">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
           <CheckCircle className="h-8 w-8 text-primary" />
@@ -143,7 +160,7 @@ export default function CheckoutSuccessPage() {
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Date</span>
-            <span itemProp="orderDate">{new Date().toLocaleDateString()}</span>
+            <span itemProp="orderDate">{new Date(orderDate).toLocaleDateString()}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">Total</span>
@@ -154,8 +171,8 @@ export default function CheckoutSuccessPage() {
           <div className="flex justify-between">
             <span className="text-muted-foreground">Payment Method</span>
             <span itemProp="paymentMethod">
-              {checkoutDetails?.payment.cardType || "Credit Card"}
-              {checkoutDetails?.payment.cardLast4 ? ` (ending in ${checkoutDetails.payment.cardLast4})` : ""}
+              {checkoutDetails?.payment?.cardType || "Credit Card"}
+              {checkoutDetails?.payment?.cardLast4 ? ` (ending in ${checkoutDetails.payment.cardLast4})` : ""}
             </span>
           </div>
           {checkoutDetails?.customer.email && (
@@ -182,7 +199,7 @@ export default function CheckoutSuccessPage() {
         </div>
       </div>
 
-      {/* Order Items with Microdata */}
+      {/* Order Items with Data Attributes */}
       <div className="border rounded-lg p-6 mb-8">
         <h2 className="text-xl font-semibold mb-4">Items Ordered</h2>
         <div className="space-y-4">
@@ -190,31 +207,24 @@ export default function CheckoutSuccessPage() {
             <div
               key={`${item.product.id}-${item.size}-${item.color}`}
               className="flex items-start border-b pb-4 last:border-0 last:pb-0"
-              itemScope
-              itemType="http://schema.org/Product"
-              itemProp="orderedItem"
+              data-product-id={item.product.id}
+              data-product-name={item.product.name}
+              data-product-image={item.product.image}
+              data-product-sku={`MD-${item.product.id}`}
             >
-              <meta itemProp="productID" content={item.product.id} />
-              <meta itemProp="name" content={item.product.name} />
-              <meta itemProp="image" content={item.product.image} />
-              <meta itemProp="id" content={item.product.id} />
-              <meta itemProp="sku" content={`MD-${item.product.id}`} />
-
               <div className="flex-1">
-                <h3 className="font-medium" itemProp="name">
-                  {item.product.name}
-                </h3>
+                <h3 className="font-medium">{item.product.name}</h3>
                 <p className="text-sm text-muted-foreground">
                   {item.size && `Size: ${item.size}`}
                   {item.size && item.color && " | "}
                   {item.color && `Color: ${item.color}`}
                 </p>
-                <div itemScope itemType="http://schema.org/Offer" itemProp="offers">
-                  <meta itemProp="price" content={String(item.product.price)} />
-                  <meta itemProp="priceCurrency" content="USD" />
-                  <meta itemProp="itemCondition" content="http://schema.org/NewCondition" />
-                  <meta itemProp="availability" content="http://schema.org/InStock" />
-                </div>
+                <div
+                  data-offer-price={item.product.price}
+                  data-offer-currency="USD"
+                  data-offer-condition="NewCondition"
+                  data-offer-availability="InStock"
+                />
               </div>
               <div className="text-right">
                 <p className="font-medium">
@@ -228,7 +238,7 @@ export default function CheckoutSuccessPage() {
       </div>
 
       <div className="text-center">
-        <p className="mb-6">We've sent a confirmation email to your inbox with all the details of your order.</p>
+        <p className="mb-6">We&apos;ve sent a confirmation email to your inbox with all the details of your order.</p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Button asChild>
             <Link href="/shop">Continue Shopping</Link>
@@ -241,4 +251,3 @@ export default function CheckoutSuccessPage() {
     </div>
   )
 }
-

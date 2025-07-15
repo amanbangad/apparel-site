@@ -6,7 +6,7 @@ export default function CategoryNotFound() {
     <div className="container py-16 text-center">
       <h1 className="text-4xl font-bold mb-4">Category Not Found</h1>
       <p className="text-xl text-muted-foreground mb-8 max-w-md mx-auto">
-        We couldn't find the category you're looking for. It may have been removed or doesn't exist.
+        We couldn&apos;t find the category you&apos;re looking for. It may have been removed or doesn&apos;t exist.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button asChild size="lg">
@@ -19,4 +19,3 @@ export default function CategoryNotFound() {
     </div>
   )
 }
-

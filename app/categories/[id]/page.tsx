@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { categories, getProductsByCategory } from "@/lib/data"
+import { use } from "react"
 
 interface CategoryPageProps {
   params: {
@@ -9,10 +10,19 @@ interface CategoryPageProps {
   }
 }
 
+function isPromiseLike<T>(obj: unknown): obj is PromiseLike<T> {
+  return typeof obj === 'object' && obj !== null && 'then' in obj && typeof (obj as { then: unknown }).then === 'function';
+}
+
 export default function CategoryPage({ params }: CategoryPageProps) {
+  let id: string
+  if (isPromiseLike<{ id: string }>(params)) {
+    id = (use(params) as { id: string }).id
+  } else {
+    id = (params as { id: string }).id
+  }
   // Check if the category ID exists
-  const categoryId = params.id
-  const category = categories.find((c) => c.id === categoryId)
+  const category = categories.find((c) => c.id === id)
 
   // If category doesn't exist, show the not-found page
   if (!category) {
@@ -20,7 +30,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   }
 
   // Get products for this category
-  const products = getProductsByCategory(categoryId)
+  const products = getProductsByCategory(id)
 
   return (
     <div className="container py-8">
@@ -53,7 +63,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
       {products.length === 0 && (
         <div className="text-center py-12">
           <h2 className="text-xl font-semibold mb-2">No products found</h2>
-          <p className="text-muted-foreground mb-6">We couldn't find any products in this category.</p>
+          <p className="text-muted-foreground mb-6">We couldn&apos;t find any products in this category.</p>
           <Link href="/shop" className="text-primary hover:underline">
             View all products
           </Link>
@@ -62,4 +72,3 @@ export default function CategoryPage({ params }: CategoryPageProps) {
     </div>
   )
 }
-
