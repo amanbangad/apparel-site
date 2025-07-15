@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, use } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -16,8 +16,8 @@ import { Spinner } from "@/components/ui/spinner"
 import PageTransition from "@/components/page-transition"
 import { AnimatePresence } from "framer-motion"
 
-export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+export default function ProductPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const product = getProductById(id)
   const [selectedSize, setSelectedSize] = useState<string>(product?.sizes?.[0] || "")
   const [selectedColor, setSelectedColor] = useState<string>(product?.colors?.[0] || "")

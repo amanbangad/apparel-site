@@ -1,74 +1,67 @@
-import Image from "next/image"
-import Link from "next/link"
+import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-import { categories, getProductsByCategory } from "@/lib/data"
-import { use } from "react"
 
-interface CategoryPageProps {
-  params: {
-    id: string
-  }
+import { ProductCard, type Product } from "@/components/product-card"
+import { cn } from "@/lib/utils"
+import { products as ALL_PRODUCTS } from "@/lib/data"
+
+/* -------------------------------------------------------------------------- */
+/* Category map (slug → human-readable). Extend as needed.                    */
+/* -------------------------------------------------------------------------- */
+const CATEGORY_NAMES: Record<string, string> = {
+  shirts: "Shirts",
+  hoodies: "Hoodies",
+  shorts: "Shorts",
 }
 
-function isPromiseLike<T>(obj: unknown): obj is PromiseLike<T> {
-  return typeof obj === 'object' && obj !== null && 'then' in obj && typeof (obj as { then: unknown }).then === 'function';
-}
+/* -------------------------------------------------------------------------- */
+/* Page component                                                             */
+/* -------------------------------------------------------------------------- */
+export default function CategoryPage({
+  params,
+}: {
+  // use `any` internally to avoid Next.js' PageProps constraint issues
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}) {
+  const id = String(params.id ?? "")
+  const categoryName = CATEGORY_NAMES[id]
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  let id: string
-  if (isPromiseLike<{ id: string }>(params)) {
-    id = (use(params) as { id: string }).id
-  } else {
-    id = (params as { id: string }).id
-  }
-  // Check if the category ID exists
-  const category = categories.find((c) => c.id === id)
+  if (!categoryName) notFound()
 
-  // If category doesn't exist, show the not-found page
-  if (!category) {
-    notFound()
-  }
-
-  // Get products for this category
-  const products = getProductsByCategory(id)
+  const filtered: Product[] = ALL_PRODUCTS.filter((p) => p.category === id)
 
   return (
-    <div className="container py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{category.name}</h1>
-        <p className="text-muted-foreground">{category.description}</p>
-      </div>
+    <main className={cn("container mx-auto px-4 py-16")}>
+      <h1 className="mb-8 text-3xl font-bold">{categoryName}</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <Link key={product.id} href={`/products/${product.id}`} className="group">
-            <div className="overflow-hidden rounded-lg border bg-card">
-              <div className="relative aspect-square overflow-hidden">
-                <Image
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.name}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                />
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium">{product.name}</h3>
-                <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {products.length === 0 && (
-        <div className="text-center py-12">
-          <h2 className="text-xl font-semibold mb-2">No products found</h2>
-          <p className="text-muted-foreground mb-6">We couldn&apos;t find any products in this category.</p>
-          <Link href="/shop" className="text-primary hover:underline">
-            View all products
-          </Link>
+      {filtered.length === 0 ? (
+        <p>No products found in this category.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       )}
-    </div>
+    </main>
   )
+}
+
+/* -------------------------------------------------------------------------- */
+/* SEO                                                                        */
+/* -------------------------------------------------------------------------- */
+export function generateMetadata({
+  params,
+}: {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}): Metadata {
+  const name = CATEGORY_NAMES[String(params.id ?? "")]
+  return {
+    title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
+    description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,
+  }
 }

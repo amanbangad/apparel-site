@@ -105,7 +105,7 @@ export default function CartPage() {
                             <div className="flex items-center">
                               <div className="relative w-16 h-16 mr-4 overflow-hidden rounded">
                                 <Image
-                                  src={item.product.image || ""}
+                                  src={item.product.image || "/placeholder.svg?height=64&width=64"}
                                   alt={item.product.name}
                                   fill
                                   className="object-cover transition-transform hover:scale-110 duration-300"
@@ -126,7 +126,7 @@ export default function CartPage() {
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8 transition-transform hover:scale-110"
+                                className="h-8 w-8 transition-transform hover:scale-110 bg-transparent"
                                 onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                               >
                                 <Minus className="h-3 w-3" />
@@ -135,7 +135,7 @@ export default function CartPage() {
                               <Button
                                 variant="outline"
                                 size="icon"
-                                className="h-8 w-8 transition-transform hover:scale-110"
+                                className="h-8 w-8 transition-transform hover:scale-110 bg-transparent"
                                 onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                               >
                                 <Plus className="h-3 w-3" />
