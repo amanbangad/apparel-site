@@ -17,11 +17,8 @@ const CATEGORY_NAMES: Record<string, string> = {
 /* -------------------------------------------------------------------------- */
 /* Page component                                                             */
 /* -------------------------------------------------------------------------- */
-type PageProps = {
-  params: { id: string }
-}
 
-export default function CategoryPage({ params }: PageProps) {
+export default function CategoryPage({ params }: { params: { id: string } }) {
   const { id } = params
   const categoryName = CATEGORY_NAMES[id]
 
@@ -49,7 +46,7 @@ export default function CategoryPage({ params }: PageProps) {
 /* -------------------------------------------------------------------------- */
 /* SEO                                                                        */
 /* -------------------------------------------------------------------------- */
-export function generateMetadata({ params }: PageProps): Metadata {
+export function generateMetadata({ params }: { params: { id: string } }): Metadata {
   const name = CATEGORY_NAMES[params.id]
   return {
     title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
