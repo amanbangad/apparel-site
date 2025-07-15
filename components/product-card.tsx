@@ -1,13 +1,14 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { ShoppingCart } from "lucide-react"
 
+import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useCart } from "@/context/cart-context"
+import { cn } from "@/lib/utils"
 
-export type Product = {
+/* -------------------------------------------------------------------------- */
+/* Types                                                                      */
+/* -------------------------------------------------------------------------- */
+export interface Product {
   id: string
   name: string
   price: number
@@ -15,41 +16,37 @@ export type Product = {
   category: string
 }
 
-/**
- * Single product card used across category & home pages.
- */
+/* -------------------------------------------------------------------------- */
+/* Component                                                                  */
+/* -------------------------------------------------------------------------- */
 export function ProductCard({ product }: { product: Product }) {
-  const { addItem } = useCart()
-
   return (
-    <div
-      className="group rounded-lg border p-4 transition-shadow hover:shadow-md"
-      data-product-id={product.id}
-      data-product-category={product.category}
-    >
+    <Card className="group overflow-hidden">
       <Link href={`/products/${product.id}`} className="block">
-        <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-md">
+        <div className="relative h-56 w-full overflow-hidden bg-muted">
           <Image
             src={product.image || "/placeholder.svg"}
             alt={product.name}
             fill
-            sizes="(max-width:768px) 100vw, 33vw"
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </div>
-        <h3 className="mb-1 font-medium">{product.name}</h3>
-        <p className="mb-3 text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
       </Link>
 
-      <Button variant="secondary" size="sm" className="w-full" onClick={() => addItem({ product, quantity: 1 })}>
-        <ShoppingCart className="mr-2 h-4 w-4" />
-        Add to cart
-      </Button>
-    </div>
+      <CardContent className="p-4 flex flex-col gap-2">
+        <h3 className={cn("text-lg font-medium truncate")}>{product.name}</h3>
+        <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
+
+        <Button asChild size="sm" className="mt-auto">
+          <Link href={`/products/${product.id}`}>View product</Link>
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
 
 /* -------------------------------------------------------------------------- */
-/* Default export for backward-compatibility                                   */
+/* Default export keeps backwards-compatibility                               */
 /* -------------------------------------------------------------------------- */
 export default ProductCard

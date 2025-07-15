@@ -3,51 +3,31 @@ import { notFound } from "next/navigation"
 
 import { ProductCard, type Product } from "@/components/product-card"
 import { cn } from "@/lib/utils"
+import { products as ALL_PRODUCTS } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/* Dummy data – replace with a real DB/API call in production                 */
+/* Category map (id -> pretty name). Replace or extend as needed.             */
 /* -------------------------------------------------------------------------- */
-const products: Product[] = [
-  {
-    id: "1",
-    name: "Classic Tee",
-    price: 29.99,
-    image: "/placeholder.jpg",
-    category: "shirts",
-  },
-  {
-    id: "2",
-    name: "Comfy Hoodie",
-    price: 49.99,
-    image: "/placeholder.jpg",
-    category: "hoodies",
-  },
-  {
-    id: "3",
-    name: "Athletic Shorts",
-    price: 39.99,
-    image: "/placeholder.jpg",
-    category: "shorts",
-  },
-]
-
-const categories = {
+const CATEGORY_NAMES: Record<string, string> = {
   shirts: "Shirts",
   hoodies: "Hoodies",
   shorts: "Shorts",
-} as const
+}
 
 /* -------------------------------------------------------------------------- */
 /* Page component                                                             */
 /* -------------------------------------------------------------------------- */
-export default function CategoryPage({ params }: { params: { id: keyof typeof categories } }) {
-  const categoryName = categories[params.id]
+type PageProps = {
+  params: { id: string }
+}
 
-  if (!categoryName) {
-    notFound()
-  }
+export default function CategoryPage({ params }: PageProps) {
+  const { id } = params
+  const categoryName = CATEGORY_NAMES[id]
 
-  const filtered = products.filter((p) => p.category === params.id)
+  if (!categoryName) notFound()
+
+  const filtered: Product[] = ALL_PRODUCTS.filter((p) => p.category === id)
 
   return (
     <main className={cn("container mx-auto px-4 py-16")}>
@@ -69,11 +49,10 @@ export default function CategoryPage({ params }: { params: { id: keyof typeof ca
 /* -------------------------------------------------------------------------- */
 /* SEO                                                                        */
 /* -------------------------------------------------------------------------- */
-export function generateMetadata({ params }: { params: { id: keyof typeof categories } }): Metadata {
-  const name = categories[params.id]
-  if (!name) return {}
+export function generateMetadata({ params }: PageProps): Metadata {
+  const name = CATEGORY_NAMES[params.id]
   return {
-    title: `${name} – Apparel Shop`,
-    description: `Browse all ${name.toLowerCase()} in our store.`,
+    title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
+    description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,
   }
 }
