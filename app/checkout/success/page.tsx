@@ -52,6 +52,7 @@ export default function CheckoutSuccessPage() {
   const shipping = subtotal > 50 ? 0 : 5.99
   const total = subtotal + shipping
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Only run on client
     let id = localStorage.getItem("orderId")
