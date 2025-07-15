@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useMemo } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { CheckCircle } from "lucide-react"
@@ -58,29 +58,37 @@ type FbqWindow = Window & {
 
 export default function CheckoutSuccessPage() {
   const router = useRouter()
-  const { items, clearCart } = useCart()
+
+  /**
+   * Grab cart items **once** so that we can still render them
+   * after we clear the cart.
+   */
+  const { items: cartItems, clearCart } = useCart()
+  const [items] = useState(cartItems) // snapshot – never changes
 
   /* -------------------------------------------------- */
-  /* LOCAL STATE                                        */
+  /* Order Totals                                       */
+  /* -------------------------------------------------- */
+  const subtotal = useMemo(() => items.reduce((sum, it) => sum + it.product.price * it.quantity, 0), [items])
+  const shipping = subtotal > 50 ? 0 : 5.99
+  const total = subtotal + shipping
+
+  /* -------------------------------------------------- */
+  /* Local State for IDs / Dates                        */
   /* -------------------------------------------------- */
   const [orderId, setOrderId] = useState<string | null>(null)
   const [orderDate, setOrderDate] = useState<string | null>(null)
   const [checkoutDetails, setCheckoutDetails] = useState<CheckoutDetails | null>(null)
 
-  /* -------------------------------------------------- */
-  /* DERIVED DATA                                       */
-  /* -------------------------------------------------- */
-  const subtotal = items.reduce((total, item) => total + item.product.price * item.quantity, 0)
-  const shipping = subtotal > 50 ? 0 : 5.99
-  const total = subtotal + shipping
-
-  /* -------------------------------------------------- */
-  /* HANDLERS                                           */
-  /* -------------------------------------------------- */
-  const handleOrderProcessing = useCallback(() => {
-    // ID + date (persisted locally so the page works on refresh)
+  /* -------------------------------------------------------------------------- */
+  /* One-time order processing (analytics, clear cart)                           */
+  /* -------------------------------------------------------------------------- */
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    /* ---------------------- Generate / read order meta --------------------- */
     let id = localStorage.getItem("orderId")
     let date = localStorage.getItem("orderDate")
+
     if (!id) {
       id = `ORD-${Math.floor(Math.random() * 1_000_000)}`
       localStorage.setItem("orderId", id)
@@ -89,10 +97,11 @@ export default function CheckoutSuccessPage() {
       date = new Date().toISOString()
       localStorage.setItem("orderDate", date)
     }
+
     setOrderId(id)
     setOrderDate(date)
 
-    // Checkout details
+    /* -------------------------- Stored checkout info ----------------------- */
     const stored = localStorage.getItem("checkoutDetails")
     if (stored) {
       try {
@@ -102,7 +111,7 @@ export default function CheckoutSuccessPage() {
       }
     }
 
-    /* ------------------------- Analytics (Pixel) -------------------------- */
+    /* ---------------------- Meta / Facebook Pixel event -------------------- */
     if (typeof window !== "undefined") {
       const w = window as FbqWindow
       w.fbq?.("track", "Purchase", {
@@ -116,52 +125,43 @@ export default function CheckoutSuccessPage() {
       })
     }
 
-    /* ------------------------------ Internal ------------------------------ */
+    /* ---------------------- Internal analytics helper ---------------------- */
     trackFbEvent("Purchase", {
       value: total,
-      content_ids: items.map((i) => i.product.id),
       currency: "USD",
+      content_ids: items.map((i) => i.product.id),
       order_id: id,
     })
 
-    /* --------------------------- Cart clean-up ---------------------------- */
+    /* -------------------------- Clear cart & cleanup ----------------------- */
     clearCart()
     localStorage.removeItem("checkoutDetails")
-  }, [items, clearCart, total])
-
-  /* -------------------------------------------------------------------------- */
-  /* Effects                                                                     */
-  /* -------------------------------------------------------------------------- */
-  useEffect(() => {
-    handleOrderProcessing()
-  }, [handleOrderProcessing])
+  }, []) // <-- runs exactly once on mount
 
   if (!orderId || !orderDate) return null
 
   /* -------------------------------------------------------------------------- */
-  /* RENDER                                                                      */
+  /* UI                                                                         */
   /* -------------------------------------------------------------------------- */
   return (
     <main className="container mx-auto max-w-2xl px-4 py-16" data-order-id={orderId} data-order-date={orderDate}>
-      <div className="mb-8 text-center">
+      <header className="mb-8 text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <CheckCircle className="h-8 w-8 text-primary" />
         </div>
         <h1 className="mb-2 text-3xl font-bold">Order Confirmed!</h1>
         <p className="text-muted-foreground">Thank you for your purchase. Your order is being processed.</p>
-      </div>
+      </header>
 
-      {/* --- Order details -------------------------------------------------- */}
+      {/* Order details */}
       <section className="mb-8 rounded-lg border p-6">
         <h2 className="mb-4 text-xl font-semibold">Order Details</h2>
-        <div className="space-y-2">
-          <InfoLine label="Order Number" value={orderId} />
-          <InfoLine label="Date" value={new Date(orderDate).toLocaleDateString()} />
-          <InfoLine label="Total" value={`$${total.toFixed(2)}`} />
-        </div>
+        <InfoLine label="Order Number" value={orderId} />
+        <InfoLine label="Date" value={new Date(orderDate).toLocaleDateString()} />
+        <InfoLine label="Total" value={`$${total.toFixed(2)}`} />
       </section>
 
-      {/* --- Items list ----------------------------------------------------- */}
+      {/* Items */}
       <section className="mb-8 rounded-lg border p-6">
         <h2 className="mb-4 text-xl font-semibold">Items Ordered</h2>
         <div className="space-y-4">
@@ -176,6 +176,7 @@ export default function CheckoutSuccessPage() {
         </div>
       </section>
 
+      {/* Actions */}
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
         <Button asChild>
           <Link href="/shop">Continue Shopping</Link>
@@ -189,9 +190,8 @@ export default function CheckoutSuccessPage() {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Helpers                                                                     */
+/* Helper component                                                            */
 /* -------------------------------------------------------------------------- */
-
 function InfoLine({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
