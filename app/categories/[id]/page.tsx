@@ -1,34 +1,63 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import { notFound } from "next/navigation"
 
-import { products } from "@/lib/data"
-import { ProductCard } from "@/components/product-card"
+import { ProductCard, type Product } from "@/components/product-card"
+import { cn } from "@/lib/utils"
 
-interface CategoryPageProps {
-  params: {
-    id: string
+/* -------------------------------------------------------------------------- */
+/* Dummy data – replace with a real DB/API call in production                 */
+/* -------------------------------------------------------------------------- */
+const products: Product[] = [
+  {
+    id: "1",
+    name: "Classic Tee",
+    price: 29.99,
+    image: "/placeholder.jpg",
+    category: "shirts",
+  },
+  {
+    id: "2",
+    name: "Comfy Hoodie",
+    price: 49.99,
+    image: "/placeholder.jpg",
+    category: "hoodies",
+  },
+  {
+    id: "3",
+    name: "Athletic Shorts",
+    price: 39.99,
+    image: "/placeholder.jpg",
+    category: "shorts",
+  },
+]
+
+const categories = {
+  shirts: "Shirts",
+  hoodies: "Hoodies",
+  shorts: "Shorts",
+} as const
+
+/* -------------------------------------------------------------------------- */
+/* Page component                                                             */
+/* -------------------------------------------------------------------------- */
+export default function CategoryPage({ params }: { params: { id: keyof typeof categories } }) {
+  const categoryName = categories[params.id]
+
+  if (!categoryName) {
+    notFound()
   }
-}
 
-/**
- * Simple category listing page.
- * Only minimal UI so it compiles; adjust as required.
- */
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const { id } = params
-  const categoryProducts = products.filter((p) => p.category === id)
+  const filtered = products.filter((p) => p.category === params.id)
 
   return (
-    <main className="container mx-auto max-w-6xl px-4 py-12">
-      <h1 className="mb-8 text-3xl font-bold capitalize">{id}</h1>
+    <main className={cn("container mx-auto px-4 py-16")}>
+      <h1 className="mb-8 text-3xl font-bold">{categoryName}</h1>
 
-      {categoryProducts.length === 0 ? (
-        <p>
-          No products found. <Link href="/shop">Go back to shop</Link>.
-        </p>
+      {filtered.length === 0 ? (
+        <p>No products found in this category.</p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {categoryProducts.map((product) => (
+          {filtered.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -37,9 +66,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
   )
 }
 
-/* ------------ Optional: set a nice <title> for SEO ----------------------- */
-export function generateMetadata({ params }: CategoryPageProps): Metadata {
+/* -------------------------------------------------------------------------- */
+/* SEO                                                                        */
+/* -------------------------------------------------------------------------- */
+export function generateMetadata({ params }: { params: { id: keyof typeof categories } }): Metadata {
+  const name = categories[params.id]
+  if (!name) return {}
   return {
-    title: `${params.id} – Shop`,
+    title: `${name} – Apparel Shop`,
+    description: `Browse all ${name.toLowerCase()} in our store.`,
   }
 }

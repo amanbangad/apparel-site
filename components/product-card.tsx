@@ -1,49 +1,55 @@
-import Link from "next/link"
+"use client"
+
 import Image from "next/image"
+import Link from "next/link"
 import { ShoppingCart } from "lucide-react"
-import AddToCartButton from "@/components/add-to-cart-button"
+
+import { Button } from "@/components/ui/button"
+import { useCart } from "@/context/cart-context"
 
 export type Product = {
   id: string
   name: string
   price: number
   image: string
-  category?: string
-}
-
-export interface ProductCardProps {
-  product: Product
+  category: string
 }
 
 /**
- * Displays a single product with image, name & price.
- * Exposes a named export *and* the default export for maximum compatibility.
+ * Single product card used across category & home pages.
  */
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product }: { product: Product }) {
+  const { addItem } = useCart()
+
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-lg border">
-      <Link href={`/products/${product.id}`} className="relative block aspect-square">
-        <Image
-          src={product.image || "/placeholder.svg"}
-          alt={product.name}
-          fill
-          sizes="(max-width:768px) 50vw, 33vw"
-          className="object-cover transition-transform group-hover:scale-105"
-        />
+    <div
+      className="group rounded-lg border p-4 transition-shadow hover:shadow-md"
+      data-product-id={product.id}
+      data-product-category={product.category}
+    >
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="relative mb-3 aspect-square w-full overflow-hidden rounded-md">
+          <Image
+            src={product.image || "/placeholder.svg"}
+            alt={product.name}
+            fill
+            sizes="(max-width:768px) 100vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+        <h3 className="mb-1 font-medium">{product.name}</h3>
+        <p className="mb-3 text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
       </Link>
 
-      <div className="flex flex-1 flex-col p-4">
-        <div className="mb-2 flex-1">
-          <h3 className="text-lg font-medium">{product.name}</h3>
-          <p className="text-muted-foreground">${product.price.toFixed(2)}</p>
-        </div>
-
-        <AddToCartButton product={product} className="w-full" icon={<ShoppingCart className="mr-2 h-4 w-4" />}>
-          Add to cart
-        </AddToCartButton>
-      </div>
-    </article>
+      <Button variant="secondary" size="sm" className="w-full" onClick={() => addItem({ product, quantity: 1 })}>
+        <ShoppingCart className="mr-2 h-4 w-4" />
+        Add to cart
+      </Button>
+    </div>
   )
 }
 
+/* -------------------------------------------------------------------------- */
+/* Default export for backward-compatibility                                   */
+/* -------------------------------------------------------------------------- */
 export default ProductCard
