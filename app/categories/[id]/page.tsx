@@ -1,55 +1,52 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import ProductCard, { type Product } from "@/components/product-card"
-import { getProductsByCategory, getCategoryById } from "@/lib/data"
+import ProductCard from "@/components/product-card"
+import { getProductsByCategory, getCategoryById, categories, type Product } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/*                             Static Site Data                               */
+/* Static generation helpers                                                  */
 /* -------------------------------------------------------------------------- */
 
-export const dynamicParams = false // pre-generate all category pages
+export const dynamicParams = false // pre-render at build time
 
-export async function generateStaticParams() {
-  return getCategoryById("*").map((cat) => ({ id: cat.id }))
+export function generateStaticParams() {
+  return categories.map((cat) => ({ id: cat.id }))
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { id: string }
-}): Promise<Metadata> {
+export function generateMetadata({ params }: { params: { id: string } }): Metadata {
   const category = getCategoryById(params.id)
-  if (!category) notFound()
+  if (!category) return {}
 
   return {
     title: `${category.name} • Apparel`,
-    description: `Browse all ${category.name} in our store`,
+    description: `Browse all ${category.name.toLowerCase()} available in our store.`,
   }
 }
 
 /* -------------------------------------------------------------------------- */
-/*                                 Page Component                             */
+/* Page component                                                             */
 /* -------------------------------------------------------------------------- */
 
-export default function CategoryPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const products: Product[] = getProductsByCategory(params.id)
+export default function CategoryPage({ params }: { params: { id: string } }) {
+  const category = getCategoryById(params.id)
+  if (!category) notFound()
 
-  if (!products?.length) notFound()
+  const products: Product[] = getProductsByCategory(params.id)
 
   return (
     <main className="container py-10">
-      <h1 className="text-3xl font-bold mb-8 capitalize">{params.id}</h1>
+      <h1 className="mb-8 text-3xl font-bold">{category.name}</h1>
 
-      <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
-      </section>
+      {products.length === 0 ? (
+        <p>No products found in this category.</p>
+      ) : (
+        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </section>
+      )}
     </main>
   )
 }
