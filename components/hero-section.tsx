@@ -91,27 +91,13 @@ export default function HeroSection() {
             <Button asChild size="lg" className="gradient-primary text-white border-0 px-8 py-6 text-lg group">
               <Link href="/shop" className="flex items-center gap-2 bg-white px-3 rounded-full py-3">
                 Shop Now
-                
               </Link>
             </Button>
-   <Button asChild size="lg" className="gradient-primary text-white border-0 px-8 py-6 text-lg group">
-              <Link href="/categories" className="flex items-center gap-2 bg-white px-3 py-3 rounded-full">Browse Categories</Link>
+            <Button asChild size="lg" className="gradient-primary text-white border-0 px-8 py-6 text-lg group">
+              <Link href="/categories" className="flex items-center gap-2 bg-white px-3 py-3 rounded-full">
+                Browse Categories
+              </Link>
             </Button>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            className="grid grid-cols-3 gap-8 mt-16 max-w-md mx-auto"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9, duration: 0.8 }}
-          >
-            
-            
-            <div className="text-center">
-              
-              
-            </div>
           </motion.div>
         </motion.div>
       </div>

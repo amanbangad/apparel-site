@@ -162,7 +162,7 @@ export default function ShopPage() {
                 {ALL_COLORS.map((color) => (
                   <button
                     key={color}
-                    className={`w-6 h-6 rounded-full border relative ${COLOR_MAP[color] || "bg-gray-300"} ${
+                    className={`w-6 h-6 rounded-full border relative ${COLOR_MAP?.[color] || "bg-gray-300"} ${
                       filters.colors.includes(color) ? "border-primary ring-2 ring-primary/30" : "border-gray-300"
                     }`}
                     onClick={() => toggleArrayFilter("colors", color)}

@@ -9,16 +9,14 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
-import { getProductById, type Product } from "@/lib/data"
+import { getProductById } from "@/lib/data"
 import { useCart } from "@/context/cart-context"
-import { toast } from "sonner"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProductPage({ params }: { params: any }) {
-  const [product, setProduct] = useState<Product | null>(null)
+  const [product, setProduct] = useState<any | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedColor, setSelectedColor] = useState<string>("")
-  const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
   const { addItem } = useCart()
 
@@ -44,17 +42,17 @@ export default function ProductPage({ params }: { params: any }) {
 
   const handleAddToCart = () => {
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      toast.error("Please select a size")
+      alert("Please select a size")
       return
     }
     if (product.colors && product.colors.length > 0 && !selectedColor) {
-      toast.error("Please select a color")
+      alert("Please select a color")
       return
     }
 
-    addItem(product, quantity, selectedSize, selectedColor)
+    addItem(product, 1, selectedSize, selectedColor)
 
-    toast.success("Added to cart!")
+    alert("Added to cart!")
   }
 
   const handleShare = async () => {
@@ -71,7 +69,7 @@ export default function ProductPage({ params }: { params: any }) {
     } else {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href)
-      toast.success("Link copied to clipboard!")
+      alert("Link copied to clipboard!")
     }
   }
 
@@ -161,7 +159,7 @@ export default function ProductPage({ params }: { params: any }) {
           )}
 
           {/* Quantity */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <label className="text-sm font-medium">Quantity</label>
             <div className="flex items-center gap-2">
               <Button
@@ -177,7 +175,7 @@ export default function ProductPage({ params }: { params: any }) {
                 +
               </Button>
             </div>
-          </div>
+          </div> */}
 
           {/* Actions */}
           <div className="flex gap-4">

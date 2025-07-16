@@ -22,7 +22,7 @@ export default function Footer() {
               </div>
               <span className="text-2xl font-bold text-gradient">{SITE_NAME}</span>
             </div>
-            <p className="text-muted-foreground">We couldn&apos;t find what you&apos;re looking for.</p>
+            <p className="text-muted-foreground">Your one-stop shop for modern essentials.</p>
             <div className="flex space-x-4">
               <Link
                 href="#"
