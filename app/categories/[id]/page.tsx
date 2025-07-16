@@ -1,19 +1,57 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import ProductCard from "@/components/product-card"
-import { categories, getCategoryById, getProductsByCategory, type Product } from "@/lib/data"
+import { ProductCard, type Product } from "@/components/product-card"
+import { cn } from "@/lib/utils"
+import { products as ALL_PRODUCTS } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/* Static-generation helpers                                                  */
+/* Category map (slug → human-readable). Extend as needed.                    */
 /* -------------------------------------------------------------------------- */
-
-export const dynamicParams = false
-
-export function generateStaticParams() {
-  return categories.map((c) => ({ id: c.id }))
+const CATEGORY_NAMES: Record<string, string> = {
+  shirts: "Shirts",
+  hoodies: "Hoodies",
+  shorts: "Shorts",
 }
 
+/* -------------------------------------------------------------------------- */
+/* Page component                                                             */
+/* -------------------------------------------------------------------------- */
+export default function CategoryPage({
+  params,
+}: {
+  // use `any` internally to avoid Next.js' PageProps constraint issues
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}) {
+  const id = String(params.id ?? "")
+  const categoryName = CATEGORY_NAMES[id]
+
+  if (!categoryName) notFound()
+
+  const filtered: Product[] = ALL_PRODUCTS.filter((p) => p.category === id)
+
+  return (
+    <main className={cn("container mx-auto px-4 py-16")}>
+      <h1 className="mb-8 text-3xl font-bold">{categoryName}</h1>
+
+      {filtered.length === 0 ? (
+        <p>No products found in this category.</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+    </main>
+  )
+}
+
+/* -------------------------------------------------------------------------- */
+/* SEO                                                                        */
+/* -------------------------------------------------------------------------- */
 export function generateMetadata({
   params,
 }: {
@@ -21,45 +59,9 @@ export function generateMetadata({
   params: any
   /* eslint-enable @typescript-eslint/no-explicit-any */
 }): Metadata {
-  const category = getCategoryById(String(params.id))
-  return category
-    ? {
-        title: `${category.name} • Apparel`,
-        description: `Browse all ${category.name.toLowerCase()} in our store.`,
-      }
-    : {}
-}
-
-/* -------------------------------------------------------------------------- */
-/* Page component                                                             */
-/* -------------------------------------------------------------------------- */
-
-export default function CategoryPage({
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  params,
-}: {
-  params: any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
-}) {
-  const categoryId = String(params.id)
-  const category = getCategoryById(categoryId)
-  if (!category) notFound()
-
-  const products: Product[] = getProductsByCategory(categoryId)
-
-  return (
-    <main className="container py-10">
-      <h1 className="mb-8 text-3xl font-bold">{category.name}</h1>
-
-      {products.length === 0 ? (
-        <p>No products found in this category.</p>
-      ) : (
-        <section className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </section>
-      )}
-    </main>
-  )
+  const name = CATEGORY_NAMES[String(params.id ?? "")]
+  return {
+    title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
+    description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,
+  }
 }

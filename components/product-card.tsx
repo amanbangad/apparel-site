@@ -2,37 +2,48 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import type { Product } from "@/lib/data"
+import { cn } from "@/lib/utils"
 
-export interface ProductCardProps {
-  product: Product
+/* -------------------------------------------------------------------------- */
+/* Types                                                                      */
+/* -------------------------------------------------------------------------- */
+export interface Product {
+  id: string
+  name: string
+  price: number
+  image: string
+  category: string
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+/* -------------------------------------------------------------------------- */
+/* Component                                                                  */
+/* -------------------------------------------------------------------------- */
+export function ProductCard({ product }: { product: Product }) {
   return (
-    <Card className="overflow-hidden">
-      <Link href={`/products/${product.id}`}>
+    <article
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-lg border bg-white shadow-sm transition-shadow hover:shadow-md",
+      )}
+    >
+      <Link href={`/products/${product.id}`} className="relative block h-56 w-full">
         <Image
           src={product.image || "/placeholder.svg"}
           alt={product.name}
-          width={500}
-          height={500}
-          className="h-64 w-full object-cover"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
       </Link>
 
-      <CardContent className="p-4 flex flex-col gap-2">
-        <h3 className="font-semibold">{product.name}</h3>
-        <span className="text-sm text-muted-foreground">${product.price}</span>
-        <Button asChild>
-          <Link href={`/products/${product.id}`}>View details</Link>
-        </Button>
-      </CardContent>
-    </Card>
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <h3 className="text-sm font-medium">{product.name}</h3>
+        <p className="mt-auto text-base font-semibold">${product.price.toFixed(2)}</p>
+      </div>
+    </article>
   )
 }
 
-/* Named and default export to satisfy every import style */
+/* -------------------------------------------------------------------------- */
+/* Default export (for backwards-compat)                                      */
+/* -------------------------------------------------------------------------- */
 export default ProductCard
