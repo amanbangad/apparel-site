@@ -1,10 +1,14 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Download, X } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+import { AnimatePresence, motion } from "framer-motion"
 
+/**
+ * The real `BeforeInstallPromptEvent` isn’t in the DOM lib, so we define
+ * what we need here.
+ */
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
@@ -16,63 +20,55 @@ export default function PWAInstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false)
 
   useEffect(() => {
-    // Check if app is already installed
+    /* ----------------------------------------------------------- helpers -- */
     const checkIfInstalled = () => {
-      if (
+      const isStandalone =
         window.matchMedia("(display-mode: standalone)").matches ||
+        // iOS Safari
         (window.navigator as unknown as { standalone?: boolean }).standalone === true
-      ) {
-        setIsInstalled(true)
-      }
+      if (isStandalone) setIsInstalled(true)
     }
 
-    // Listen for beforeinstallprompt event
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
-      setDeferredPrompt(e as BeforeInstallPromptEvent)
+      setDeferredPrompt(e)
 
-      // Show prompt after a delay
+      // delay the toast a little bit
       setTimeout(() => {
         if (!isInstalled && !localStorage.getItem("pwa-prompt-dismissed")) {
           setShowPrompt(true)
         }
-      }, 10000) // Show after 10 seconds
+      }, 10_000)
     }
 
-    // Listen for app installed event
     const handleAppInstalled = () => {
       setIsInstalled(true)
       setShowPrompt(false)
       setDeferredPrompt(null)
     }
 
+    /* ----------------------------------------------------------- effects -- */
     checkIfInstalled()
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    window.addEventListener("appinstalled", handleAppInstalled)
+
+    // cast the listener so TS uses the `(type: string, listener: …)` overload
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener)
+    window.addEventListener("appinstalled", handleAppInstalled as EventListener)
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-      window.removeEventListener("appinstalled", handleAppInstalled)
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener)
+      window.removeEventListener("appinstalled", handleAppInstalled as EventListener)
     }
   }, [isInstalled])
 
+  /* ------------------------------------------------------------- actions -- */
   const handleInstallClick = async () => {
     if (!deferredPrompt) return
-
     try {
       await deferredPrompt.prompt()
-      const { outcome } = await deferredPrompt.userChoice
-
-      if (outcome === "accepted") {
-        console.log("PWA installation accepted")
-      } else {
-        console.log("PWA installation dismissed")
-      }
-
+      await deferredPrompt.userChoice
+    } finally {
       setDeferredPrompt(null)
       setShowPrompt(false)
-    } catch (error) {
-      console.error("Error installing PWA:", error)
     }
   }
 
@@ -81,6 +77,7 @@ export default function PWAInstallPrompt() {
     localStorage.setItem("pwa-prompt-dismissed", "true")
   }
 
+  /* ----------------------------------------------------------------  UI -- */
   if (isInstalled || !showPrompt) return null
 
   return (
@@ -91,14 +88,14 @@ export default function PWAInstallPrompt() {
         exit={{ y: 100, opacity: 0 }}
         className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-sm"
       >
-        <div className="bg-background border rounded-lg shadow-lg p-4">
-          <div className="flex items-start justify-between mb-3">
+        <div className="rounded-lg border bg-background p-4 shadow-lg">
+          <div className="mb-3 flex items-start justify-between">
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mr-3">
+              <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
                 <Download className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <h3 className="font-semibold text-sm">Install StyleHub</h3>
+                <h3 className="text-sm font-semibold">Install StyleHub</h3>
                 <p className="text-xs text-muted-foreground">Get the app experience</p>
               </div>
             </div>
@@ -107,7 +104,7 @@ export default function PWAInstallPrompt() {
             </Button>
           </div>
 
-          <p className="text-sm text-muted-foreground mb-4">
+          <p className="mb-4 text-sm text-muted-foreground">
             Install our app for faster loading, offline access, and a better shopping experience.
           </p>
 
