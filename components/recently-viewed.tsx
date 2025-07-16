@@ -6,98 +6,75 @@ import Image from "next/image"
 import { getProductById } from "@/lib/data"
 import type { Product } from "@/lib/data"
 
-export default function RecentlyViewed({ currentProductId }: { currentProductId?: string }) {
+export default function RecentlyViewed({
+  currentProductId,
+}: {
+  currentProductId?: string
+}) {
   const [recentProducts, setRecentProducts] = useState<Product[]>([])
 
   useEffect(() => {
-    // Get recently viewed products from localStorage
-    const getRecentlyViewed = () => {
+    /* ---------------- helpers ---------------- */
+    const getRecentlyViewed = (): string[] => {
       try {
-        const recentlyViewed = localStorage.getItem("recentlyViewed")
-        return recentlyViewed ? JSON.parse(recentlyViewed) : []
-      } catch (error) {
-        console.error("Error parsing recently viewed products", error)
+        const json = localStorage.getItem("recentlyViewed")
+        return json ? (JSON.parse(json) as string[]) : []
+      } catch {
         return []
       }
     }
 
-    // Add current product to recently viewed
-    const addToRecentlyViewed = (productId: string) => {
-      if (!productId) return
+    const saveRecentlyViewed = (ids: string[]) => localStorage.setItem("recentlyViewed", JSON.stringify(ids))
 
-      const recentlyViewed = getRecentlyViewed()
-
-      // Remove if already exists (to move it to the front)
-      const filtered = recentlyViewed.filter((id: string) => id !== productId)
-
-      // Add to front of array
-      const updated = [productId, ...filtered].slice(0, 4)
-
-      // Save to localStorage
-      localStorage.setItem("recentlyViewed", JSON.stringify(updated))
-
-      // Get product details and update state
-      const products = updated
-        .map((id: string) => getProductById(id))
-        .filter((product): product is Product => product !== undefined)
-
-      setRecentProducts(products)
+    const addToRecentlyViewed = (id: string) => {
+      const withoutCurrent = getRecentlyViewed().filter((pid) => pid !== id)
+      const updated = [id, ...withoutCurrent].slice(0, 4)
+      saveRecentlyViewed(updated)
+      setRecentProducts(updated.map((pid) => getProductById(pid)).filter((p): p is Product => Boolean(p)))
     }
 
-    // Initialize
-    const recentlyViewed = getRecentlyViewed()
-
-    // Add current product if provided
+    /* --------------- logic --------------- */
     if (currentProductId) {
       addToRecentlyViewed(currentProductId)
     } else {
-      // Just display existing recently viewed products
-      const products = recentlyViewed
-        .map((id: string) => getProductById(id))
-        .filter((product): product is Product => product !== undefined)
-
-      setRecentProducts(products)
+      setRecentProducts(
+        getRecentlyViewed()
+          .map((pid) => getProductById(pid))
+          .filter((p): p is Product => Boolean(p)),
+      )
     }
   }, [currentProductId])
 
-  // Don't show if there are no products or only the current product
-  if (recentProducts.length === 0 || (recentProducts.length === 1 && recentProducts[0].id === currentProductId)) {
-    return null
-  }
+  /* no products? ----------------------------------------------------------- */
+  const productsToShow = currentProductId ? recentProducts.filter((p) => p.id !== currentProductId) : recentProducts
 
-  // Filter out current product from display
-  const productsToShow = currentProductId
-    ? recentProducts.filter((product) => product.id !== currentProductId)
-    : recentProducts
+  if (productsToShow.length === 0) return null
 
-  if (productsToShow.length === 0) {
-    return null
-  }
-
+  /* render ----------------------------------------------------------------- */
   return (
-    <div className="mt-16">
-      <h2 className="text-2xl font-bold mb-6">Recently Viewed</h2>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <section className="mt-16">
+      <h2 className="mb-6 text-2xl font-bold">Recently Viewed</h2>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {productsToShow.map((product) => (
           <Link key={product.id} href={`/products/${product.id}`} className="group">
             <div className="overflow-hidden rounded-lg border bg-card">
-              <div className="relative aspect-square overflow-hidden">
+              <div className="relative aspect-square">
                 <Image
                   src={product.image || "/placeholder.svg"}
                   alt={product.name}
                   fill
-                  sizes="(max-width: 640px) 50vw, 25vw"
+                  sizes="(max-width:640px) 50vw, 25vw"
                   className="object-cover transition-transform group-hover:scale-105"
                 />
               </div>
               <div className="p-3">
-                <h3 className="font-medium text-sm truncate">{product.name}</h3>
+                <h3 className="truncate text-sm font-medium">{product.name}</h3>
                 <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
               </div>
             </div>
           </Link>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

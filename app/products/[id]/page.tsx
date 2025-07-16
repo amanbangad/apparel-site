@@ -5,21 +5,23 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { getProductById } from "@/lib/data"
 import AddToCartButton from "@/components/add-to-cart-button"
 import SizeGuide from "@/components/size-guide"
 import RecentlyViewed from "@/components/recently-viewed"
 import { trackFbEvent } from "@/lib/analytics"
 import { motion } from "framer-motion"
-import { fadeIn, slideUp } from "@/lib/animations"
+import { fadeIn } from "@/lib/animations"
 import { Spinner } from "@/components/ui/spinner"
 import PageTransition from "@/components/page-transition"
 import { AnimatePresence } from "framer-motion"
+import { getProductById } from "@/lib/products" // Import getProductById
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ProductPage({ params }: any) {
-  const { id } = params
-  const product = getProductById(id)
+interface PageProps {
+  params: { id: string }
+}
+
+export default function ProductPage({ params }: PageProps) {
+  const product = getProductById(params.id)
   const [selectedSize, setSelectedSize] = useState<string>(product?.sizes?.[0] || "")
   const [selectedColor, setSelectedColor] = useState<string>(product?.colors?.[0] || "")
   const [quantity, setQuantity] = useState(1)
@@ -55,27 +57,10 @@ export default function ProductPage({ params }: any) {
 
   return (
     <PageTransition>
-      <div
-        className="container py-8"
-        data-product-id={product.id}
-        data-product-sku={`MD-${product.id}`}
-        data-product-brand="Moo Deng"
-        data-product-category={product.category}
-      >
-        <motion.div className="mb-4" variants={fadeIn} initial="hidden" animate="visible">
-          <Link href="/shop" className="text-muted-foreground hover:text-foreground transition-colors">
-            ← Back to shop
-          </Link>
-        </motion.div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Image */}
-          <motion.div
-            className="relative aspect-square overflow-hidden rounded-lg border"
-            variants={fadeIn}
-            initial="hidden"
-            animate="visible"
-          >
+      <main className="mx-auto max-w-5xl px-4 py-12">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+          {/* image -------------------------------------------------------------- */}
+          <div className="relative aspect-square w-full overflow-hidden rounded-lg border">
             <div
               className={`absolute inset-0 bg-muted flex items-center justify-center z-10 transition-opacity duration-500 ${isImageLoaded ? "opacity-0" : "opacity-100"}`}
             >
@@ -85,26 +70,25 @@ export default function ProductPage({ params }: any) {
               src={product.image || "/placeholder.svg"}
               alt={product.name}
               fill
-              className={`object-cover transition-opacity duration-500 ${isImageLoaded ? "opacity-100" : "opacity-0"}`}
+              sizes="(max-width:768px) 100vw, 50vw"
+              className="object-cover transition-opacity duration-500"
               priority
               onLoad={() => setIsImageLoaded(true)}
             />
-          </motion.div>
+          </div>
 
-          {/* Product Details */}
-          <motion.div variants={slideUp} initial="hidden" animate="visible">
-            <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
-            <div
-              data-offer-price={product.price}
-              data-offer-currency="USD"
-              data-offer-condition="NewCondition"
-              data-offer-availability="InStock"
-              data-offer-url={`https://apparel-ecomm-website.vercel.app/products/${product.id}`}
-              data-offer-valid-until={new Date(Date.now() + 31536000000).toISOString().split("T")[0]}
-            >
-              <p className="text-2xl font-semibold mb-4">${product.price.toFixed(2)}</p>
-            </div>
-            <p className="text-muted-foreground mb-6">{product.description}</p>
+          {/* details ------------------------------------------------------------ */}
+          <section>
+            <motion.div className="mb-4" variants={fadeIn} initial="hidden" animate="visible">
+              <Link href="/shop" className="text-muted-foreground hover:text-foreground transition-colors">
+                ← Back to shop
+              </Link>
+            </motion.div>
+
+            <h1 className="text-3xl font-bold">{product.name}</h1>
+            <p className="mt-2 text-muted-foreground">{product.description}</p>
+
+            <p className="mt-4 text-2xl font-semibold">${product.price.toFixed(2)}</p>
 
             {/* Size Selection */}
             <motion.div
@@ -192,35 +176,11 @@ export default function ProductPage({ params }: any) {
               </div>
             </motion.div>
 
-            {/* Add to Cart */}
-            <motion.div
-              className="flex flex-col sm:flex-row gap-4"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
+            <div className="mt-6 flex gap-4">
               <AddToCartButton product={product} selectedSize={selectedSize} selectedColor={selectedColor} />
-            </motion.div>
-
-            {/* Additional Info */}
-            <motion.div
-              className="mt-8 border-t pt-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              <div className="flex flex-col gap-4">
-                <div>
-                  <h3 className="font-medium">Shipping</h3>
-                  <p className="text-muted-foreground">Free shipping on orders over $50</p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Returns</h3>
-                  <p className="text-muted-foreground">Free 30-day returns</p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
+              <Button variant="outline">Add to wishlist</Button>
+            </div>
+          </section>
         </div>
 
         {/* Product Details Tabs */}
@@ -333,7 +293,7 @@ export default function ProductPage({ params }: any) {
         >
           <RecentlyViewed currentProductId={product.id} />
         </motion.div>
-      </div>
+      </main>
     </PageTransition>
   )
 }

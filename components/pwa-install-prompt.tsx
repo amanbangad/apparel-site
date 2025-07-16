@@ -2,122 +2,71 @@
 
 import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Download, X } from "lucide-react"
-import { AnimatePresence, motion } from "framer-motion"
+import { cn } from "@/lib/utils"
 
-/**
- * The real `BeforeInstallPromptEvent` isn’t in the DOM lib, so we define
- * what we need here.
- */
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>
 }
 
 export default function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null)
-  const [showPrompt, setShowPrompt] = useState(false)
-  const [isInstalled, setIsInstalled] = useState(false)
+  const [show, setShow] = useState(false)
 
   useEffect(() => {
-    /* ----------------------------------------------------------- helpers -- */
     const checkIfInstalled = () => {
-      const isStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        // iOS Safari
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true
-      if (isStandalone) setIsInstalled(true)
+      // Hide prompt if the PWA is already installed
+      // @ts-expect-error — non-standard navigator property
+      if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone) {
+        setShow(false)
+      }
     }
 
-    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
+    // --- listeners ----------------------------------------------------------
+    const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
-      setDeferredPrompt(e)
+      setDeferredPrompt(e as BeforeInstallPromptEvent)
 
-      // delay the toast a little bit
-      setTimeout(() => {
-        if (!isInstalled && !localStorage.getItem("pwa-prompt-dismissed")) {
-          setShowPrompt(true)
-        }
-      }, 10_000)
+      // show prompt after slight delay so it doesn’t fight with page load
+      setTimeout(() => setShow(true), 500)
     }
 
     const handleAppInstalled = () => {
-      setIsInstalled(true)
-      setShowPrompt(false)
+      setShow(false)
       setDeferredPrompt(null)
     }
 
-    /* ----------------------------------------------------------- effects -- */
+    // ------------------------------------------------------------------------
     checkIfInstalled()
-
-    // cast the listener so TS uses the `(type: string, listener: …)` overload
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener)
-    window.addEventListener("appinstalled", handleAppInstalled as EventListener)
+    window.addEventListener("appinstalled", handleAppInstalled)
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt as EventListener)
-      window.removeEventListener("appinstalled", handleAppInstalled as EventListener)
+      window.removeEventListener("appinstalled", handleAppInstalled)
     }
-  }, [isInstalled])
+  }, [])
 
-  /* ------------------------------------------------------------- actions -- */
-  const handleInstallClick = async () => {
+  const install = async () => {
     if (!deferredPrompt) return
-    try {
-      await deferredPrompt.prompt()
-      await deferredPrompt.userChoice
-    } finally {
-      setDeferredPrompt(null)
-      setShowPrompt(false)
-    }
+    await deferredPrompt.prompt()
+    setDeferredPrompt(null)
+    setShow(false)
   }
 
-  const handleDismiss = () => {
-    setShowPrompt(false)
-    localStorage.setItem("pwa-prompt-dismissed", "true")
-  }
-
-  /* ----------------------------------------------------------------  UI -- */
-  if (isInstalled || !showPrompt) return null
+  if (!show) return null
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        className="fixed bottom-4 left-4 right-4 z-50 md:left-auto md:right-4 md:max-w-sm"
-      >
-        <div className="rounded-lg border bg-background p-4 shadow-lg">
-          <div className="mb-3 flex items-start justify-between">
-            <div className="flex items-center">
-              <div className="mr-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
-                <Download className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <div>
-                <h3 className="text-sm font-semibold">Install StyleHub</h3>
-                <p className="text-xs text-muted-foreground">Get the app experience</p>
-              </div>
-            </div>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleDismiss}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <p className="mb-4 text-sm text-muted-foreground">
-            Install our app for faster loading, offline access, and a better shopping experience.
-          </p>
-
-          <div className="flex gap-2">
-            <Button onClick={handleInstallClick} size="sm" className="flex-1">
-              Install
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleDismiss}>
-              Not now
-            </Button>
-          </div>
-        </div>
-      </motion.div>
-    </AnimatePresence>
+    <div className={cn("fixed bottom-4 left-1/2 z-50 -translate-x-1/2 rounded-lg border bg-card p-4 shadow-lg")}>
+      <p className="mb-2 text-sm font-medium">Install our app for a faster, native-like experience</p>
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={() => setShow(false)}>
+          Not now
+        </Button>
+        <Button size="sm" onClick={install}>
+          Install
+        </Button>
+      </div>
+    </div>
   )
 }
