@@ -16,6 +16,7 @@ import { Spinner } from "@/components/ui/spinner"
 import PageTransition from "@/components/page-transition"
 import { AnimatePresence } from "framer-motion"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProductPage({ params }: any) {
   const { id } = params
   const product = getProductById(id)
