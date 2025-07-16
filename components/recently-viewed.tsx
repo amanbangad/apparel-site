@@ -38,7 +38,7 @@ export default function RecentlyViewed({ currentProductId }: { currentProductId?
 
       // Get product details and update state
       const products = updated
-        .map((id) => getProductById(id))
+        .map((id: string) => getProductById(id))
         .filter((product): product is Product => product !== undefined)
 
       setRecentProducts(products)
@@ -53,7 +53,7 @@ export default function RecentlyViewed({ currentProductId }: { currentProductId?
     } else {
       // Just display existing recently viewed products
       const products = recentlyViewed
-        .map((id) => getProductById(id))
+        .map((id: string) => getProductById(id))
         .filter((product): product is Product => product !== undefined)
 
       setRecentProducts(products)
