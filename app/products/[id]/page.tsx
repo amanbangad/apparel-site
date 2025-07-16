@@ -158,25 +158,6 @@ export default function ProductPage({ params }: { params: any }) {
             </div>
           )}
 
-          {/* Quantity */}
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium">Quantity</label>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-              >
-                -
-              </Button>
-              <span className="w-12 text-center">{quantity}</span>
-              <Button variant="outline" size="sm" onClick={() => setQuantity(quantity + 1)}>
-                +
-              </Button>
-            </div>
-          </div> */}
-
           {/* Actions */}
           <div className="flex gap-4">
             <Button onClick={handleAddToCart} className="flex-1">
@@ -234,10 +215,9 @@ export default function ProductPage({ params }: { params: any }) {
 
       {/* Product Details Tabs */}
       <Tabs defaultValue="description" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="description">Description</TabsTrigger>
           <TabsTrigger value="specifications">Specifications</TabsTrigger>
-          <TabsTrigger value="reviews">Reviews</TabsTrigger>
         </TabsList>
         <TabsContent value="description" className="mt-6">
           <div className="prose max-w-none">
@@ -265,56 +245,6 @@ export default function ProductPage({ params }: { params: any }) {
             <div>
               <h4 className="font-medium mb-2">Fit</h4>
               <p className="text-muted-foreground">True to size</p>
-            </div>
-          </div>
-        </TabsContent>
-        <TabsContent value="reviews" className="mt-6">
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-bold">{product.rating || 4.5}</div>
-              <div>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${
-                        i < Math.floor(product.rating || 4.5) ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground">Based on {Math.floor(Math.random() * 100) + 50} reviews</p>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {[1, 2, 3].map((review) => (
-                <Card key={review}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        U{review}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium">User {review}</span>
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`h-3 w-3 ${i < 5 ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          Great quality and comfortable fit. Highly recommend!
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
             </div>
           </div>
         </TabsContent>
