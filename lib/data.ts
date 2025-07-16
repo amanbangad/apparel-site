@@ -22,6 +22,10 @@ export interface Product {
   rating?: number
   originalPrice?: number
   badge?: string
+  /**
+   * Mark the product so it can be highlighted on the home page.
+   */
+  featured?: boolean // ← add this line
 }
 
 /* ------------------------------------------------------------------------ */
@@ -62,6 +66,7 @@ export const products: Product[] = [
     image: "/placeholder.svg?height=640&width=640",
     rating: 4.4,
     badge: "Best Seller",
+    featured: true, // ← new field
   },
   {
     id: "oversized-hoodie",
@@ -75,6 +80,7 @@ export const products: Product[] = [
     image: "/placeholder.svg?height=640&width=640",
     rating: 4.8,
     badge: "Sale",
+    featured: true, // ← new field
   },
   {
     id: "canvas-tote",
@@ -85,6 +91,7 @@ export const products: Product[] = [
     colors: ["Natural"],
     image: "/placeholder.svg?height=640&width=640",
     rating: 4.2,
+    featured: false, // ← ensure the field exists (optional)
   },
 ]
 
@@ -104,4 +111,11 @@ export function getProductById(id: string): Product | undefined {
  */
 export function getProductsByCategory(categoryId: string): Product[] {
   return products.filter((p) => p.category === categoryId)
+}
+
+/**
+ * Products explicitly marked as `featured`.
+ */
+export function getFeaturedProducts(): Product[] {
+  return products.filter((p) => p.featured)
 }
