@@ -9,12 +9,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
-import { getProductById } from "@/lib/data"
+import { type Product, getProductById } from "@/lib/data"
 import { useCart } from "@/context/cart-context"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function ProductPage({ params }: { params: any }) {
-  const [product, setProduct] = useState<any | null>(null)
+export default function ProductPage({ params }: { params: { id: string } }) {
+  const [product, setProduct] = useState<Product | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedColor, setSelectedColor] = useState<string>("")
   const [isWishlisted, setIsWishlisted] = useState(false)
@@ -28,10 +27,10 @@ export default function ProductPage({ params }: { params: any }) {
     setProduct(foundProduct)
 
     // Set default selections
-    if (foundProduct.sizes && foundProduct.sizes.length > 0) {
+    if (foundProduct.sizes?.length) {
       setSelectedSize(foundProduct.sizes[0])
     }
-    if (foundProduct.colors && foundProduct.colors.length > 0) {
+    if (foundProduct.colors?.length) {
       setSelectedColor(foundProduct.colors[0])
     }
   }, [params.id])
