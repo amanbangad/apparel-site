@@ -18,13 +18,16 @@ export default function PWAInstallPrompt() {
   useEffect(() => {
     // Check if app is already installed
     const checkIfInstalled = () => {
-      if (window.matchMedia("(display-mode: standalone)").matches || (window.navigator as unknown as { standalone?: boolean }).standalone === true) {
+      if (
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true
+      ) {
         setIsInstalled(true)
       }
     }
 
     // Listen for beforeinstallprompt event
-    const handleBeforeInstallPrompt = (e: unknown) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault()
       setDeferredPrompt(e as BeforeInstallPromptEvent)
 
