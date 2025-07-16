@@ -9,14 +9,13 @@ import SkipToContent from "@/components/skip-to-content"
 import { SITE_NAME } from "@/lib/constants"
 import { CartProvider } from "@/context/cart-context"
 import ResourcePreloader from "@/components/resource-preloader"
-import PWAInstallPrompt from "@/components/pwa-install-prompt"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} | Modern Apparel`,
   description: "Find the latest fashion trends at Moo Deng",
-    generator: 'v0.dev'
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
@@ -71,7 +70,6 @@ export default function RootLayout({
             <Footer />
           </div>
           <ResourcePreloader />
-          <PWAInstallPrompt />
         </CartProvider>
         <Script id="sw-register" strategy="afterInteractive">
           {`
