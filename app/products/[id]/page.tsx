@@ -20,7 +20,7 @@ export default function ProductPage({ params }: { params: any }) {
   const [selectedColor, setSelectedColor] = useState<string>("")
   const [quantity, setQuantity] = useState(1)
   const [isWishlisted, setIsWishlisted] = useState(false)
-  const { addToCart } = useCart()
+  const { addItem } = useCart()
 
   useEffect(() => {
     const foundProduct = getProductById(params.id)
@@ -52,15 +52,7 @@ export default function ProductPage({ params }: { params: any }) {
       return
     }
 
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity,
-      size: selectedSize,
-      color: selectedColor,
-    })
+    addItem(product, quantity, selectedSize, selectedColor)
 
     toast.success("Added to cart!")
   }
