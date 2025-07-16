@@ -3,35 +3,36 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import type { Product } from "@/lib/data"
 
-type Props = { product: Product }
+export interface ProductCardProps {
+  product: Product
+}
 
-export function ProductCard({ product }: Props) {
+export function ProductCard({ product }: ProductCardProps) {
   return (
-    <Link href={`/products/${product.id}`} prefetch={false}>
-      <Card className="overflow-hidden transition-shadow hover:shadow-lg">
-        <div className="relative h-56 w-full">
-          <Image
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 100vw"
-            className="object-cover"
-            priority
-          />
-        </div>
+    <Card className="overflow-hidden">
+      <Link href={`/products/${product.id}`}>
+        <Image
+          src={product.image || "/placeholder.svg"}
+          alt={product.name}
+          width={500}
+          height={500}
+          className="h-64 w-full object-cover"
+        />
+      </Link>
 
-        <CardContent className="p-4 space-y-1">
-          <h3 className="font-medium">{product.name}</h3>
-          <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
-          {product.featured && <Badge variant="secondary">Featured</Badge>}
-        </CardContent>
-      </Card>
-    </Link>
+      <CardContent className="p-4 flex flex-col gap-2">
+        <h3 className="font-semibold">{product.name}</h3>
+        <span className="text-sm text-muted-foreground">${product.price}</span>
+        <Button asChild>
+          <Link href={`/products/${product.id}`}>View details</Link>
+        </Button>
+      </CardContent>
+    </Card>
   )
 }
 
-/* Provide default export for legacy imports */
+/* Named and default export to satisfy every import style */
 export default ProductCard

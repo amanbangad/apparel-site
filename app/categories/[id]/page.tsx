@@ -2,37 +2,50 @@ import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 
 import ProductCard from "@/components/product-card"
-import { getProductsByCategory, getCategoryById, categories, type Product } from "@/lib/data"
+import { categories, getCategoryById, getProductsByCategory, type Product } from "@/lib/data"
 
 /* -------------------------------------------------------------------------- */
-/* Static generation helpers                                                  */
+/* Static-generation helpers                                                  */
 /* -------------------------------------------------------------------------- */
 
-export const dynamicParams = false // pre-render at build time
+export const dynamicParams = false
 
 export function generateStaticParams() {
-  return categories.map((cat) => ({ id: cat.id }))
+  return categories.map((c) => ({ id: c.id }))
 }
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
-  const category = getCategoryById(params.id)
-  if (!category) return {}
-
-  return {
-    title: `${category.name} • Apparel`,
-    description: `Browse all ${category.name.toLowerCase()} available in our store.`,
-  }
+export function generateMetadata({
+  params,
+}: {
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}): Metadata {
+  const category = getCategoryById(String(params.id))
+  return category
+    ? {
+        title: `${category.name} • Apparel`,
+        description: `Browse all ${category.name.toLowerCase()} in our store.`,
+      }
+    : {}
 }
 
 /* -------------------------------------------------------------------------- */
 /* Page component                                                             */
 /* -------------------------------------------------------------------------- */
 
-export default function CategoryPage({ params }: { params: { id: string } }) {
-  const category = getCategoryById(params.id)
+export default function CategoryPage({
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  params,
+}: {
+  params: any
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+}) {
+  const categoryId = String(params.id)
+  const category = getCategoryById(categoryId)
   if (!category) notFound()
 
-  const products: Product[] = getProductsByCategory(params.id)
+  const products: Product[] = getProductsByCategory(categoryId)
 
   return (
     <main className="container py-10">

@@ -1,5 +1,4 @@
 import Link from "next/link"
-import { Heart } from "lucide-react"
 import { SITE_NAME } from "@/lib/constants"
 
 // Modern hippo icon component
@@ -11,8 +10,8 @@ const HippoIcon = ({ className, size = 24 }: { className?: string; size?: number
 
 export default function Footer() {
   return (
-    <footer className="bg-gradient-to-b from-secondary/50 to-secondary border-t">
-      <div className="container py-16">
+    <footer className="bg-gradient-to-b from-secondary/50 to-secondary border-t py-8 text-center text-sm text-muted-foreground">
+      <div className="container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           {/* Brand section */}
           <div className="md:col-span-2">
@@ -63,17 +62,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom section */}
-        <div className="border-t border-border pt-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center text-sm text-muted-foreground mb-4 md:mb-0">
-              <span>
-                © {new Date().getFullYear()} {SITE_NAME}. Made with
-              </span>
-              <Heart className="h-4 w-4 mx-1 text-primary" />
-              <span>for Moo Deng fans everywhere.</span>
-            </div>
-          </div>
-        </div>
+        <p>
+          {"© "}
+          {new Date().getFullYear()}
+          {" Apparel Store. All rights reserved."}
+        </p>
       </div>
     </footer>
   )
