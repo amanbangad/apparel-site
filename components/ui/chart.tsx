@@ -252,12 +252,11 @@ ChartTooltipContent.displayName = "ChartTooltip"
 
 // --- Legend ---------------------------------------------------------------
 
-// Extra props we accept in addition to regular <div> props.
-// Pull the exact types from Recharts so we stay in-sync without
-// colliding with DOM attributes.
+// Extra props accepted by our custom Legend component.
+// Use `any` to bypass Recharts' complex generic constraints.
 type LegendExtraProps = {
-  payload?: React.ComponentProps<typeof RechartsPrimitive.Legend>["payload"]
-  verticalAlign?: React.ComponentProps<typeof RechartsPrimitive.Legend>["verticalAlign"]
+  payload?: any
+  verticalAlign?: any
   hideIcon?: boolean
   nameKey?: string
 }
