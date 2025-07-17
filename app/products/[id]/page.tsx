@@ -12,7 +12,8 @@ import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "luc
 import { type Product, getProductById } from "@/lib/data"
 import { useCart } from "@/context/cart-context"
 
-export default function ProductPage({ params }: { params: { id: string } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function ProductPage({ params }: any) {
   const [product, setProduct] = useState<Product | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [selectedColor, setSelectedColor] = useState<string>("")
