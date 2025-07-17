@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { Product } from "@/lib/data"
-import { trackFbEvent } from "@/lib/analytics"
 
 export type CartItem = {
   product: Product
@@ -27,7 +26,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((total: number, item: CartItem) => total + item.quantity, 0)
 
-  // Load from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("cart")
     if (saved) {
@@ -39,7 +37,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(items))
   }, [items])
@@ -66,7 +63,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity < 1) return
-    setItems((prev: CartItem[]) => prev.map((item: CartItem) => (item.product.id === productId ? { ...item, quantity } : item)))
+    setItems((prev: CartItem[]) =>
+      prev.map((item: CartItem) => (item.product.id === productId ? { ...item, quantity } : item)),
+    )
   }
 
   const clearCart = () => setItems([])
