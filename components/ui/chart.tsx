@@ -95,11 +95,15 @@ const ChartTooltipContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<typeof RechartsPrimitive.Tooltip> &
     React.ComponentProps<"div"> & {
+      /* customisation */
       hideLabel?: boolean
       hideIndicator?: boolean
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
+      /* values provided by Recharts when using a custom content component */
+      payload?: unknown[]
+      active?: boolean
     }
 >(
   (
