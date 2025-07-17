@@ -5,13 +5,12 @@ import Image from "next/image"
 import { motion } from "framer-motion"
 import { ArrowUpRight } from "lucide-react"
 import type { Category } from "@/lib/data"
-import { categories as defaultCategories } from "@/lib/data"
 
 interface CategoryGridProps {
-  categories?: Category[]
+  categories: Category[]
 }
 
-export default function CategoryGrid({ categories = defaultCategories }: CategoryGridProps) {
+export default function CategoryGrid({ categories }: CategoryGridProps) {
   return (
     <section className="py-24 bg-secondary/50">
       <div className="container">
