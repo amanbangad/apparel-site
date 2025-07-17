@@ -193,11 +193,11 @@ const ChartTooltipContent = React.forwardRef<
               >
                 {formatter && (item as TooltipItem)?.value !== undefined && (item as TooltipItem).name ? (
                   formatter(
-                    (item as TooltipItem).value!,
-                    (item as TooltipItem).name!,
-                    item,
+                    (item as TooltipItem).value as number,
+                    (item as TooltipItem).name as string,
+                    item as any,
                     index,
-                    (item as TooltipItem).payload,
+                    payload as any,
                   )
                 ) : (
                   <>
