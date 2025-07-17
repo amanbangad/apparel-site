@@ -32,16 +32,18 @@ export default function AddToCartButton({ product, selectedSize, selectedColor }
       content_type: "product",
       value: product.price,
       currency: "USD",
-      contents: [{
-        id: product.id,
-        quantity: 1,
-        item_price: product.price,
-        name: product.name,
-        category: product.category,
-        variant: selectedColor || "",
-        brand: "Moo Deng",
-        size: selectedSize || "",
-      }],
+      contents: [
+        {
+          id: product.id,
+          quantity: 1,
+          item_price: product.price,
+          name: product.name,
+          category: product.category,
+          variant: selectedColor || "",
+          brand: "Moo Deng",
+          size: selectedSize || "",
+        },
+      ],
     })
 
     // Show adding animation
