@@ -49,15 +49,7 @@ export default function HeroSection() {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {/* Badge */}
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-effect mb-6"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-sm font-medium">New Collection Available</span>
-          </motion.div>
+          
 
           {/* Main Heading */}
           <motion.h1

@@ -1,40 +1,27 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
-
 import { ProductCard, type Product } from "@/components/product-card"
 import { cn } from "@/lib/utils"
-import { products as ALL_PRODUCTS } from "@/lib/data"
+import { products as ALL_PRODUCTS, categories } from "@/lib/data"
 
-/* -------------------------------------------------------------------------- */
-/* Category map (slug → human-readable). Extend as needed.                    */
-/* -------------------------------------------------------------------------- */
-const CATEGORY_NAMES: Record<string, string> = {
-  shirts: "Shirts",
-  hoodies: "Hoodies",
-  shorts: "Shorts",
-}
-
-/* -------------------------------------------------------------------------- */
-/* Page component                                                             */
-/* -------------------------------------------------------------------------- */
 export default function CategoryPage({
   params,
 }: {
-  // use `any` internally to avoid Next.js' PageProps constraint issues
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  params: any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  params: { id: string }
 }) {
-  const id = String(params.id ?? "")
-  const categoryName = CATEGORY_NAMES[id]
+  const id = params.id
+  const category = categories.find((cat) => cat.id === id)
 
-  if (!categoryName) notFound()
+  if (!category) {
+    notFound()
+  }
 
   const filtered: Product[] = ALL_PRODUCTS.filter((p) => p.category === id)
 
   return (
     <main className={cn("container mx-auto px-4 py-16")}>
-      <h1 className="mb-8 text-3xl font-bold">{categoryName}</h1>
+      <h1 className="mb-8 text-3xl font-bold">{category.name}</h1>
+      <p className="mb-8 text-muted-foreground">{category.description}</p>
 
       {filtered.length === 0 ? (
         <p>No products found in this category.</p>
@@ -49,19 +36,14 @@ export default function CategoryPage({
   )
 }
 
-/* -------------------------------------------------------------------------- */
-/* SEO                                                                        */
-/* -------------------------------------------------------------------------- */
 export function generateMetadata({
   params,
 }: {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  params: any
-  /* eslint-enable @typescript-eslint/no-explicit-any */
+  params: { id: string }
 }): Metadata {
-  const name = CATEGORY_NAMES[String(params.id ?? "")]
+  const category = categories.find((cat) => cat.id === params.id)
   return {
-    title: name ? `${name} – Apparel Shop` : "Category – Apparel Shop",
-    description: name ? `Browse all ${name.toLowerCase()} available in our store.` : undefined,
+    title: category ? `${category.name} – Apparel Shop` : "Category – Apparel Shop",
+    description: category?.description,
   }
 }

@@ -4,11 +4,9 @@ import { useState, useEffect } from "react"
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Star, Heart, Share2, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react"
+import { Star, Heart, Share2, ShoppingCart } from "lucide-react"
 import { type Product, getProductById } from "@/lib/data"
 import { useCart } from "@/context/cart-context"
 
@@ -115,7 +113,6 @@ export default function ProductPage({ params }: any) {
             {product.originalPrice && (
               <span className="text-xl text-muted-foreground line-through">${product.originalPrice}</span>
             )}
-            {product.badge && <Badge variant="destructive">{product.badge}</Badge>}
           </div>
 
           <p className="text-muted-foreground">{product.description}</p>
@@ -170,43 +167,6 @@ export default function ProductPage({ params }: any) {
             <Button variant="outline" size="icon" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
             </Button>
-          </div>
-
-          {/* Features */}
-          <div className="grid grid-cols-1 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Truck className="h-5 w-5 text-green-600" />
-                  <div>
-                    <p className="font-medium">Free Shipping</p>
-                    <p className="text-sm text-muted-foreground">On orders over $50</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <RotateCcw className="h-5 w-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium">Easy Returns</p>
-                    <p className="text-sm text-muted-foreground">30-day return policy</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="font-medium">Secure Payment</p>
-                    <p className="text-sm text-muted-foreground">SSL encrypted checkout</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
