@@ -101,6 +101,8 @@ const ChartTooltipContent = React.forwardRef<
       indicator?: "line" | "dot" | "dashed"
       nameKey?: string
       labelKey?: string
+      /** label provided by Recharts when using a custom tooltip */
+      label?: string | number
       /* values provided by Recharts when using a custom content component */
       payload?: unknown[]
       active?: boolean
