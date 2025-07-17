@@ -5,11 +5,19 @@ export interface Product {
   price: number
   category: string
   image: string
+  /**
+   * Variants – not every product has all of these, so they are optional.
+   */
   sizes?: string[]
   colors?: string[]
-  rating?: number
-  originalPrice?: number
-  badge?: string
+
+  /**
+   * New optional UI fields used by the product page
+   */
+  rating?: number // average star rating 0-5
+  originalPrice?: number // price before discount (for strikethrough UI)
+  badge?: string // small label like "Sale", "New"
+  featured?: boolean // marks a product as featured on the home page
 }
 
 export interface Category {
@@ -19,6 +27,9 @@ export interface Category {
   image: string
 }
 
+/**
+ * Demo product catalogue
+ */
 export const products: Product[] = [
   {
     id: "1",
@@ -29,6 +40,7 @@ export const products: Product[] = [
     image: "https://www.american-giant.com/cdn/shop/products/W2-2P-1-WH_0605.jpg?v=1653598909",
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black", "White", "Navy", "Gray"],
+    featured: true,
     rating: 4.6,
     badge: "Bestseller",
   },
@@ -41,6 +53,7 @@ export const products: Product[] = [
     image: "https://s7d2.scene7.com/is/image/aeo/0116_6494_432_of?$pdp-m-opt$",
     sizes: ["28", "30", "32", "34", "36"],
     colors: ["Blue", "Black", "Gray"],
+    featured: true,
     rating: 4.3,
   },
   {
@@ -53,6 +66,7 @@ export const products: Product[] = [
       "https://gwestblanks.com/cdn/shop/files/g-west-classic-comfort-oversized-hoodie-gwpchd430-681485.png?v=1735969093",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "Gray", "Beige"],
+    featured: true,
     rating: 4.8,
     badge: "New",
   },
@@ -98,6 +112,7 @@ export const products: Product[] = [
       "https://shop.mango.com/assets/rcs/pics/static/T7/fotos/S/77050276_TM.jpg?imwidth=2048&imdensity=1&ts=1713805594272",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Blue", "Black"],
+    featured: true,
     rating: 4.7,
     originalPrice: 89.99,
     badge: "Sale",
@@ -115,6 +130,9 @@ export const products: Product[] = [
   },
 ]
 
+/**
+ * Catalogue categories
+ */
 export const categories: Category[] = [
   {
     id: "t-shirts",
@@ -156,5 +174,12 @@ export const categories: Category[] = [
   },
 ]
 
+/* -------------------------------------------------------------------------- */
+/*  Convenience helpers                                                       */
+/* -------------------------------------------------------------------------- */
+
 export const getProductById = (id: string) => products.find((p) => p.id === id)
+
 export const getProductsByCategory = (categoryId: string) => products.filter((p) => p.category === categoryId)
+
+export const getFeaturedProducts = () => products.filter((p) => p.featured)

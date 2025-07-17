@@ -26,6 +26,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((total: number, item: CartItem) => total + item.quantity, 0)
 
+  // Load from localStorage
   useEffect(() => {
     const saved = localStorage.getItem("cart")
     if (saved) {
@@ -37,6 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  // Save to localStorage
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(items))
   }, [items])
