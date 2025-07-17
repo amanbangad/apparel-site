@@ -1,22 +1,34 @@
-export type Product = {
+export interface Product {
   id: string
   name: string
   description: string
   price: number
   category: string
   image: string
-  sizes: string[]
-  colors: string[]
-  featured?: boolean
+  /**
+   * Variants – not every product has all of these, so they are optional.
+   */
+  sizes?: string[]
+  colors?: string[]
+
+  /**
+   * New optional UI fields used by the product page
+   */
+  rating?: number // average star rating 0-5
+  originalPrice?: number // price before discount (for strikethrough UI)
+  badge?: string // small label like "Sale", "New"
 }
 
-export type Category = {
+export interface Category {
   id: string
   name: string
   description: string
   image: string
 }
 
+/**
+ * Demo product catalogue
+ */
 export const products: Product[] = [
   {
     id: "1",
@@ -28,17 +40,20 @@ export const products: Product[] = [
     sizes: ["XS", "S", "M", "L", "XL"],
     colors: ["Black", "White", "Navy", "Gray"],
     featured: true,
+    rating: 4.6,
+    badge: "Bestseller",
   },
   {
     id: "2",
     name: "Slim Fit Jeans",
-    description: "Modern slim fit jeans with a touch of stretch for comfort.",
+    description: "Modern slim-fit jeans with a touch of stretch for comfort.",
     price: 59.99,
     category: "pants",
     image: "https://s7d2.scene7.com/is/image/aeo/0116_6494_432_of?$pdp-m-opt$",
     sizes: ["28", "30", "32", "34", "36"],
     colors: ["Blue", "Black", "Gray"],
     featured: true,
+    rating: 4.3,
   },
   {
     id: "3",
@@ -51,6 +66,8 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "Gray", "Beige"],
     featured: true,
+    rating: 4.8,
+    badge: "New",
   },
   {
     id: "4",
@@ -61,6 +78,7 @@ export const products: Product[] = [
     image: "https://oldnavy.gap.com/webcontent/0054/626/560/cn54626560.jpg",
     sizes: ["S", "M", "L", "XL"],
     colors: ["White", "Blue", "Beige"],
+    rating: 4.1,
   },
   {
     id: "5",
@@ -81,6 +99,7 @@ export const products: Product[] = [
     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSJwQkN1_gHY-VLOv3vZIqrwNvbWZP-7m6xBg&s",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Black", "White"],
+    rating: 3.9,
   },
   {
     id: "7",
@@ -93,6 +112,9 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL"],
     colors: ["Blue", "Black"],
     featured: true,
+    rating: 4.7,
+    originalPrice: 89.99,
+    badge: "Sale",
   },
   {
     id: "8",
@@ -103,9 +125,13 @@ export const products: Product[] = [
     image: "https://www.gap.com/webcontent/0056/150/851/cn56150851.jpg",
     sizes: ["S", "M", "L", "XL"],
     colors: ["Cream", "Gray", "Navy"],
+    rating: 4.2,
   },
 ]
 
+/**
+ * Catalogue categories
+ */
 export const categories: Category[] = [
   {
     id: "t-shirts",
@@ -147,9 +173,12 @@ export const categories: Category[] = [
   },
 ]
 
-export const getProductsByCategory = (categoryId: string) =>
-  products.filter((product) => product.category === categoryId)
+/* -------------------------------------------------------------------------- */
+/*  Convenience helpers                                                       */
+/* -------------------------------------------------------------------------- */
 
-export const getFeaturedProducts = () => products.filter((product) => product.featured)
+export const getProductById = (id: string) => products.find((p) => p.id === id)
 
-export const getProductById = (id: string) => products.find((product) => product.id === id)
+export const getProductsByCategory = (categoryId: string) => products.filter((p) => p.category === categoryId)
+
+export const getFeaturedProducts = () => products.filter((p) => p.featured)

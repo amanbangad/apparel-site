@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { SITE_NAME, ROUTES } from "@/lib/constants"
 import { useCart } from "@/context/cart-context"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 
 // Modern hippo icon component
 const HippoIcon = ({ className, size = 24 }: { className?: string; size?: number }) => (
@@ -123,41 +123,39 @@ export default function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            className="md:hidden border-t glass-effect"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="space-y-1 px-4 pb-4 pt-2">
-              {ROUTES.map((route, index) => (
-                <motion.div
-                  key={route.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
+      {isMenuOpen && (
+        <motion.div
+          className="md:hidden border-t glass-effect"
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <div className="space-y-1 px-4 pb-4 pt-2">
+            {ROUTES.map((route, index) => (
+              <motion.div
+                key={route.href}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                <Link
+                  href={route.href}
+                  className={cn(
+                    "block py-3 px-4 text-base font-medium rounded-lg transition-all",
+                    pathname === route.href
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                  )}
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  <Link
-                    href={route.href}
-                    className={cn(
-                      "block py-3 px-4 text-base font-medium rounded-lg transition-all",
-                      pathname === route.href
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
-                    )}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {route.label}
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  {route.label}
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </motion.header>
   )
 }

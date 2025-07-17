@@ -15,8 +15,8 @@ const PRICE_RANGES = [
 ]
 
 const CATEGORIES = ["t-shirts", "pants", "hoodies", "shirts", "jackets", "sweaters"]
-const ALL_SIZES = Array.from(new Set(products.flatMap((p) => p.sizes))).sort()
-const ALL_COLORS = Array.from(new Set(products.flatMap((p) => p.colors))).sort()
+const ALL_SIZES = Array.from(new Set(products.flatMap((p) => p.sizes ?? []))).sort()
+const ALL_COLORS = Array.from(new Set(products.flatMap((p) => p.colors ?? []))).sort()
 
 export default function ShopPage() {
   const [filters, setFilters] = useState({
@@ -46,11 +46,11 @@ export default function ShopPage() {
     }
 
     if (filters.sizes.length > 0) {
-      result = result.filter((p) => p.sizes.some((size) => filters.sizes.includes(size)))
+      result = result.filter((p) => p.sizes?.some((size) => filters.sizes.includes(size)))
     }
 
     if (filters.colors.length > 0) {
-      result = result.filter((p) => p.colors.some((color) => filters.colors.includes(color)))
+      result = result.filter((p) => p.colors?.some((color) => filters.colors.includes(color)))
     }
 
     // Apply sorting
@@ -66,7 +66,7 @@ export default function ShopPage() {
     }
   }, [filters])
 
-  function updateFilter<K extends keyof typeof filters>(key: K, value: typeof filters[K]) {
+  function updateFilter<K extends keyof typeof filters>(key: K, value: (typeof filters)[K]) {
     setFilters((prev) => ({ ...prev, [key]: value }))
   }
 
@@ -162,7 +162,7 @@ export default function ShopPage() {
                 {ALL_COLORS.map((color) => (
                   <button
                     key={color}
-                    className={`w-6 h-6 rounded-full border relative ${COLOR_MAP[color] || "bg-gray-300"} ${
+                    className={`w-6 h-6 rounded-full border relative ${COLOR_MAP?.[color] || "bg-gray-300"} ${
                       filters.colors.includes(color) ? "border-primary ring-2 ring-primary/30" : "border-gray-300"
                     }`}
                     onClick={() => toggleArrayFilter("colors", color)}

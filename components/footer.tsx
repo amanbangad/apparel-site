@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Facebook, Instagram, Twitter, Heart } from "lucide-react"
+import { Heart } from "lucide-react"
 import { SITE_NAME } from "@/lib/constants"
 
 // Modern hippo icon component
@@ -22,27 +22,7 @@ export default function Footer() {
               </div>
               <span className="text-2xl font-bold text-gradient">{SITE_NAME}</span>
             </div>
-            <p className="text-muted-foreground">We couldn&apos;t find what you&apos;re looking for.</p>
-            <div className="flex space-x-4">
-              <Link
-                href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Facebook size={18} />
-              </Link>
-              <Link
-                href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Instagram size={18} />
-              </Link>
-              <Link
-                href="#"
-                className="w-10 h-10 rounded-full bg-primary/10 hover:bg-primary/20 flex items-center justify-center text-primary transition-colors"
-              >
-                <Twitter size={18} />
-              </Link>
-            </div>
+            <p className="text-muted-foreground">Your one-stop shop for modern essentials.</p>
           </div>
 
           {/* Shop links */}
