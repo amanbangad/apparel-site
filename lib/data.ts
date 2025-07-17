@@ -17,6 +17,7 @@ export interface Product {
   rating?: number // average star rating 0-5
   originalPrice?: number // price before discount (for strikethrough UI)
   badge?: string // small label like "Sale", "New"
+  featured?: boolean // marks a product as featured on the home page
 }
 
 export interface Category {

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import ProductCard from "@/components/product-card"
 import { motion } from "framer-motion"
-import { ArrowRight, Star } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import type { Product } from "@/lib/data"
 
 interface FeaturedProductsProps {
@@ -22,12 +22,7 @@ export default function FeaturedProducts({ products }: FeaturedProductsProps) {
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary mb-4">
-            <Star className="w-4 h-4" />
-            <span className="text-sm font-medium">Featured Collection</span>
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient py-2">Trending Now</h2>
-          
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient py-2">Our Products</h2>
         </motion.div>
 
         <motion.div
