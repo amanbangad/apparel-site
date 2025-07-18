@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Star, Heart, Share2, ShoppingCart } from "lucide-react"
 import { type Product, getProductById } from "@/lib/data"
 import { useCart } from "@/context/cart-context"
+import { trackFbEvent } from "@/lib/analytics"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProductPage({ params }: any) {
@@ -49,6 +50,27 @@ export default function ProductPage({ params }: any) {
     }
 
     addItem(product, 1, selectedSize, selectedColor)
+    
+    // Track AddToCart event
+    trackFbEvent("AddToCart", {
+      content_name: product.name,
+      content_ids: [product.id],
+      content_type: "product",
+      value: product.price,
+      currency: "USD",
+      contents: [
+        {
+          id: product.id,
+          quantity: 1,
+          item_price: product.price,
+          name: product.name,
+          category: product.category,
+          variant: selectedColor || "",
+          brand: "Moo Deng",
+          size: selectedSize || "",
+        },
+      ],
+    })
   }
 
   const handleShare = async () => {

@@ -80,40 +80,4 @@ export default function FacebookPixel({ pixelId }: FacebookPixelProps) {
       </noscript>
     </>
   )
-}
-
-// Utility functions for tracking events
-export const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', eventName, parameters)
-  }
-}
-
-export const trackPurchase = (value: number, currency: string = 'USD', contentIds?: string[]) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', 'Purchase', {
-      value: value,
-      currency: currency,
-      content_ids: contentIds,
-    })
-  }
-}
-
-export const trackAddToCart = (value: number, currency: string = 'USD', contentIds?: string[]) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', 'AddToCart', {
-      value: value,
-      currency: currency,
-      content_ids: contentIds,
-    })
-  }
-}
-
-export const trackViewContent = (contentIds?: string[], contentType?: string) => {
-  if (typeof window !== 'undefined' && window.fbq) {
-    window.fbq('track', 'ViewContent', {
-      content_ids: contentIds,
-      content_type: contentType,
-    })
-  }
 } 
