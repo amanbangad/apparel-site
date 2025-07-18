@@ -49,8 +49,6 @@ export default function ProductPage({ params }: any) {
     }
 
     addItem(product, 1, selectedSize, selectedColor)
-
-    alert("Added to cart!")
   }
 
   const handleShare = async () => {

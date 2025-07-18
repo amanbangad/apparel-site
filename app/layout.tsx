@@ -7,6 +7,7 @@ import Footer from "@/components/footer"
 import SkipToContent from "@/components/skip-to-content"
 import { SITE_NAME } from "@/lib/constants"
 import { CartProvider } from "@/context/cart-context"
+import FacebookPixel from "@/components/facebook-pixel"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || '614139101427697'} />
         <CartProvider>
           <div className="flex min-h-screen flex-col">
             <SkipToContent />
