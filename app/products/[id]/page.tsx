@@ -33,6 +33,24 @@ export default function ProductPage({ params }: any) {
     if (foundProduct.colors?.length) {
       setSelectedColor(foundProduct.colors[0])
     }
+
+    // Track ViewContent event
+    trackFbEvent("ViewContent", {
+      content_name: foundProduct.name,
+      content_ids: [foundProduct.id],
+      content_type: "product",
+      value: foundProduct.price,
+      currency: "USD",
+      contents: [
+        {
+          id: foundProduct.id,
+          quantity: 1,
+          item_price: foundProduct.price,
+          name: foundProduct.name,
+          category: foundProduct.category,
+        },
+      ],
+    })
   }, [params.id])
 
   if (!product) {
