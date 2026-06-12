@@ -49,11 +49,6 @@ type CheckoutDetails = {
   }
 }
 
-/** Extra field for fbq on the global window object */
-type FbqWindow = Window & {
-  fbq?: (...args: unknown[]) => void
-}
-
 /* -------------------------------------------------------------------------- */
 /*                                  Component                                 */
 /* -------------------------------------------------------------------------- */
@@ -117,39 +112,7 @@ export default function CheckoutSuccessPage() {
       }
     }
 
-    /* ---------------------- Meta / Facebook Pixel event -------------------- */
-    if (typeof window !== "undefined") {
-      const w = window as FbqWindow
-      w.fbq?.("track", "Purchase", {
-        value: total,
-        currency: "USD",
-        items: items.map((item) => ({
-          id: item.product.id,
-          quantity: item.quantity,
-          item_price: item.product.price,
-        })),
-        // Customer information for advanced matching
-        em: checkoutDetails?.customer.email ? btoa(checkoutDetails.customer.email) : undefined,
-        ph: checkoutDetails?.customer.phone ? btoa(checkoutDetails.customer.phone) : undefined,
-        fn: checkoutDetails?.customer.firstName ? btoa(checkoutDetails.customer.firstName) : undefined,
-        ln: checkoutDetails?.customer.lastName ? btoa(checkoutDetails.customer.lastName) : undefined,
-        // Additional customer data
-        customer_information: {
-          email: checkoutDetails?.customer.email,
-          phone: checkoutDetails?.customer.phone,
-          first_name: checkoutDetails?.customer.firstName,
-          last_name: checkoutDetails?.customer.lastName,
-          shipping_address: {
-            address: checkoutDetails?.shipping.address,
-            city: checkoutDetails?.shipping.city,
-            state: checkoutDetails?.shipping.state,
-            zip: checkoutDetails?.shipping.zip,
-          }
-        }
-      })
-    }
-
-    /* ---------------------- Internal analytics helper ---------------------- */
+    /* ---------------------- Meta / Facebook Pixel event via analytics helper -------------------- */
     trackFbEvent("Purchase", {
       value: total,
       currency: "USD",
