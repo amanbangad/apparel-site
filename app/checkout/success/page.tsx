@@ -119,7 +119,7 @@ export default function CheckoutSuccessPage() {
       await trackFbEvent(
         "Purchase",
         {
-          value: total,
+          value: parsed?.order.total ?? total,
           currency: "USD",
           content_type: "product",
           content_ids: items.map((i) => i.product.id),
@@ -128,11 +128,9 @@ export default function CheckoutSuccessPage() {
             quantity: i.quantity,
             item_price: i.product.price,
           })),
-          order_id: id,
-          eventID: `purchase_${id}`,
         },
         {
-          // Customer information for advanced matching (will be SHA-256 hashed)
+          // Raw PII — hashed by trackFbEvent before reaching fbq
           em: parsed?.customer.email,
           ph: parsed?.customer.phone,
           fn: parsed?.customer.firstName,
@@ -141,6 +139,8 @@ export default function CheckoutSuccessPage() {
           st: parsed?.shipping.state,
           zp: parsed?.shipping.zip,
         },
+        // eventID lands in fbq's 4th arg for Conversions API deduplication
+        id ?? undefined,
       )
 
       /* -------------------------- Clear cart & cleanup ----------------------- */

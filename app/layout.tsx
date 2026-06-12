@@ -17,6 +17,8 @@ export const metadata: Metadata = {
     generator: 'v0.dev'
 }
 
+const PIXEL_ID = process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || '614139101427697'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,17 +30,20 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if(!window.fbq){window.fbq=function(){window.fbq.callMethod?window.fbq.callMethod.apply(window.fbq,arguments):window.fbq.queue.push(arguments)};if(!window._fbq)window._fbq=window.fbq;}
-              window.fbq.push=window.fbq;
-              window.fbq.loaded=!0;
-              window.fbq.version='2.0';
-              window.fbq.queue=[];
-              window.fbq('init', '${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}');
-              window.fbq('track', 'PageView');
+              if(!window.fbq){
+                window.fbq=function(){window.fbq.callMethod?window.fbq.callMethod.apply(window.fbq,arguments):window.fbq.queue.push(arguments)};
+                if(!window._fbq)window._fbq=window.fbq;
+                window.fbq.push=window.fbq;
+                window.fbq.loaded=!0;
+                window.fbq.version='2.0';
+                window.fbq.queue=[];
+              }
+              window.fbq('init','${PIXEL_ID}');
+              window.fbq('track','PageView');
             `,
           }}
         />
-        <FacebookPixel />
+        <FacebookPixel pixelId={PIXEL_ID} />
         <CartProvider>
           <div className="flex min-h-screen flex-col">
             <SkipToContent />

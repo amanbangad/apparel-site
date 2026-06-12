@@ -54,9 +54,12 @@ function flushFbqQueue() {
     const fbq = window.fbq as FbqFn
     fbqEventQueue.forEach(({ event, data, options }) => {
       try {
-        // Combine data and options into a single object for fbq
-        const mergedData = { ...data, ...options }
-        fbq("track", event, mergedData)
+        // Pass options as the 4th fbq arg — never merge into event data.
+        // Meta reads advanced matching (em, ph, fn, ln) and eventID only
+        // from the 4th argument; values in the 3rd arg are silently ignored.
+        options
+          ? fbq("track", event, data, options)
+          : fbq("track", event, data)
       } catch (error) {
         console.error("Facebook Pixel tracking error while flushing queue:", error)
       }
@@ -73,37 +76,43 @@ function flushFbqQueue() {
 
 /**
  * Track an event with Facebook Pixel, or queue it until fbq is loaded.
- * Supports Meta Pixel advanced matching with automatic SHA-256 hashing.
  *
- * @param event - Event name (e.g., "Purchase", "AddToCart")
- * @param data - Event data (content_ids, contents, value, currency, etc.)
- * @param advancedMatching - User data for advanced matching (will be SHA-256 hashed)
+ * @param event            - Event name (e.g. "Purchase", "AddToCart")
+ * @param data             - Event parameters — 3rd fbq arg
+ * @param advancedMatching - Raw (unhashed) user PII. Hashed here with SHA-256
+ *                           and passed as the 4th fbq arg where Meta reads it.
+ *                           Never put these in the event data (3rd arg) —
+ *                           Meta ignores them there.
+ * @param eventID          - Deduplication ID for Conversions API — also 4th arg.
  */
 export const trackFbEvent = async (
   event: string,
   data?: EventOptions,
   advancedMatching?: AdvancedMatchingData,
+  eventID?: string,
 ) => {
   if (typeof window === "undefined") return
 
-  // Hash advanced matching fields
-  let hashedMatching: Record<string, string> = {}
-  if (advancedMatching) {
+  // Build the 4th-arg options object: hashed PII + eventID
+  let fbqOptions: Record<string, string> | undefined
+  if (advancedMatching || eventID) {
+    fbqOptions = {}
+    if (eventID) fbqOptions.eventID = eventID
     try {
-      if (advancedMatching.em) hashedMatching.em = await sha256Hex(advancedMatching.em.toLowerCase().trim())
-      if (advancedMatching.ph) hashedMatching.ph = await sha256Hex(advancedMatching.ph.replace(/\D/g, ""))
-      if (advancedMatching.fn) hashedMatching.fn = await sha256Hex(advancedMatching.fn.toLowerCase().trim())
-      if (advancedMatching.ln) hashedMatching.ln = await sha256Hex(advancedMatching.ln.toLowerCase().trim())
-      if (advancedMatching.ct) hashedMatching.ct = await sha256Hex(advancedMatching.ct.toLowerCase().trim())
-      if (advancedMatching.st) hashedMatching.st = await sha256Hex(advancedMatching.st.toLowerCase().trim())
-      if (advancedMatching.zp) hashedMatching.zp = await sha256Hex(advancedMatching.zp.toLowerCase().replace(/\s/g, ""))
-      if (advancedMatching.country) hashedMatching.country = await sha256Hex(advancedMatching.country.toLowerCase())
+      if (advancedMatching?.em) fbqOptions.em = await sha256Hex(advancedMatching.em.trim().toLowerCase())
+      if (advancedMatching?.ph) fbqOptions.ph = await sha256Hex(advancedMatching.ph.replace(/\D/g, ""))
+      if (advancedMatching?.fn) fbqOptions.fn = await sha256Hex(advancedMatching.fn.trim().toLowerCase())
+      if (advancedMatching?.ln) fbqOptions.ln = await sha256Hex(advancedMatching.ln.trim().toLowerCase())
+      if (advancedMatching?.ct) fbqOptions.ct = await sha256Hex(advancedMatching.ct.trim().toLowerCase())
+      if (advancedMatching?.st) fbqOptions.st = await sha256Hex(advancedMatching.st.trim().toLowerCase())
+      if (advancedMatching?.zp) fbqOptions.zp = await sha256Hex(advancedMatching.zp.replace(/\s/g, ""))
+      if (advancedMatching?.country) fbqOptions.country = await sha256Hex(advancedMatching.country.trim().toLowerCase())
     } catch (error) {
       console.error("Error hashing advanced matching data:", error)
     }
   }
 
-  // Clean contents array to only include allowed fields
+  // Clean contents array to only include Meta-spec fields
   const cleanedData = { ...data }
   if (cleanedData.contents && Array.isArray(cleanedData.contents)) {
     cleanedData.contents = cleanedData.contents.map((item: any) => ({
@@ -113,25 +122,23 @@ export const trackFbEvent = async (
     }))
   }
 
-  // Merge hashed matching data with event data
-  const eventOptions = { ...cleanedData, user_data: hashedMatching }
-
   if (typeof window.fbq === "function") {
     const fbq = window.fbq as FbqFn
     try {
-      fbq("track", event, eventOptions)
+      fbqOptions
+        ? fbq("track", event, cleanedData, fbqOptions)
+        : fbq("track", event, cleanedData)
     } catch (error) {
       console.error("Facebook Pixel tracking error:", error)
     }
   } else {
-    // fbq not ready -- enqueue the event
-    fbqEventQueue.push({ event, options: eventOptions })
+    // fbq not ready — enqueue with data and options kept separate
+    fbqEventQueue.push({ event, data: cleanedData, options: fbqOptions })
 
     // Set up retry to flush queue when fbq becomes available
     if (!flushTimeout) {
       flushTimeout = setTimeout(() => {
         flushFbqQueue()
-        // Retry up to 5 times
         let retries = 0
         const retryInterval = setInterval(() => {
           if (typeof window !== "undefined" && typeof window.fbq === "function") {
