@@ -104,9 +104,11 @@ export default function CheckoutSuccessPage() {
 
     /* -------------------------- Stored checkout info ----------------------- */
     const stored = localStorage.getItem("checkoutDetails")
+    let parsed: CheckoutDetails | null = null
     if (stored) {
       try {
-        setCheckoutDetails(JSON.parse(stored) as CheckoutDetails)
+        parsed = JSON.parse(stored) as CheckoutDetails
+        setCheckoutDetails(parsed)
       } catch (err) {
         console.error("Failed to parse checkout details", err)
       }
@@ -119,21 +121,21 @@ export default function CheckoutSuccessPage() {
       content_ids: items.map((i) => i.product.id),
       order_id: id,
       // Customer information for advanced matching
-      em: checkoutDetails?.customer.email ? btoa(checkoutDetails.customer.email) : undefined,
-      ph: checkoutDetails?.customer.phone ? btoa(checkoutDetails.customer.phone) : undefined,
-      fn: checkoutDetails?.customer.firstName ? btoa(checkoutDetails.customer.firstName) : undefined,
-      ln: checkoutDetails?.customer.lastName ? btoa(checkoutDetails.customer.lastName) : undefined,
+      em: parsed?.customer.email ? btoa(parsed.customer.email) : undefined,
+      ph: parsed?.customer.phone ? btoa(parsed.customer.phone) : undefined,
+      fn: parsed?.customer.firstName ? btoa(parsed.customer.firstName) : undefined,
+      ln: parsed?.customer.lastName ? btoa(parsed.customer.lastName) : undefined,
       // Additional customer data
       customer_information: {
-        email: checkoutDetails?.customer.email,
-        phone: checkoutDetails?.customer.phone,
-        first_name: checkoutDetails?.customer.firstName,
-        last_name: checkoutDetails?.customer.lastName,
+        email: parsed?.customer.email,
+        phone: parsed?.customer.phone,
+        first_name: parsed?.customer.firstName,
+        last_name: parsed?.customer.lastName,
         shipping_address: {
-          address: checkoutDetails?.shipping.address,
-          city: checkoutDetails?.shipping.city,
-          state: checkoutDetails?.shipping.state,
-          zip: checkoutDetails?.shipping.zip,
+          address: parsed?.shipping.address,
+          city: parsed?.shipping.city,
+          state: parsed?.shipping.state,
+          zip: parsed?.shipping.zip,
         }
       }
     })

@@ -42,7 +42,7 @@ export default function CheckoutPage() {
         currency: "USD",
       })
     }
-  }, [items, total])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -71,24 +71,6 @@ export default function CheckoutPage() {
         order: { subtotal, shipping, tax, total, items },
       }),
     )
-
-    // Track event
-    trackFbEvent("InitiateCheckout", {
-      content_ids: items.map((item) => item.product.id),
-      contents: items.map((item) => ({
-        id: item.product.id,
-        quantity: item.quantity,
-        item_price: item.product.price,
-        name: item.product.name,
-        category: item.product.category,
-        variant: item.color || "",
-        brand: "Moo Deng",
-        size: item.size || "",
-      })),
-      num_items: items.reduce((sum, item) => sum + item.quantity, 0),
-      value: total,
-      currency: "USD",
-    })
 
     setTimeout(() => router.push("/checkout/success"), 1500)
   }
