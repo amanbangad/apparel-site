@@ -25,6 +25,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.fbq=function(){window.fbq.callMethod?window.fbq.callMethod.apply(window.fbq,arguments):window.fbq.queue.push(arguments)};
+              window.fbq.push=window.fbq;
+              window.fbq.loaded=!0;
+              window.fbq.version='2.0';
+              window.fbq.queue=[];
+            `,
+          }}
+        />
         <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || '614139101427697'} />
         <CartProvider>
           <div className="flex min-h-screen flex-col">

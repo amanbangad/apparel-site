@@ -17,32 +17,14 @@ export default function FacebookPixel({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Load Facebook Pixel script only once
-    if (typeof window !== 'undefined' && !window.fbq) {
-      const script = document.createElement('script')
-      script.async = true
-      script.src = 'https://connect.facebook.net/en_US/fbevents.js'
-      
-      script.onload = () => {
-        // Initialize pixel only after script loads
-        if (window.fbq) {
-          window.fbq('init', pixelId)
-          window.fbq('track', 'PageView')
-        }
-      }
-      
-      document.head.appendChild(script)
+    // Load Facebook Pixel script
+    if (typeof window === 'undefined') return
 
-      // Create the fbq stub if not already present
-      if (!window.fbq) {
-        window.fbq = function() {
-          window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments)
-        }
-        window.fbq.push = window.fbq
-        window.fbq.loaded = true
-        window.fbq.version = '2.0'
-        window.fbq.queue = []
-      }
+    // Script is already loaded via inline script tag in layout
+    // Just initialize it here
+    if (window.fbq && typeof window.fbq === 'function') {
+      window.fbq('init', pixelId)
+      window.fbq('track', 'PageView')
     }
   }, [pixelId])
 
@@ -55,6 +37,11 @@ export default function FacebookPixel({ pixelId }: FacebookPixelProps) {
 
   return (
     <>
+      {/* Load the actual Facebook Pixel script */}
+      <script
+        async
+        src="https://connect.facebook.net/en_US/fbevents.js"
+      />
       {/* Facebook Pixel noscript fallback */}
       <noscript>
         <img

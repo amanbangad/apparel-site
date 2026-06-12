@@ -16,6 +16,7 @@ declare global {
 type FbqFn = (...args: unknown[]) => void
 
 let fbqEventQueue: Array<{ event: string; data?: unknown }> = []
+let flushTimeout: NodeJS.Timeout | null = null
 
 function flushFbqQueue() {
   if (typeof window !== "undefined" && typeof window.fbq === "function") {
@@ -28,6 +29,12 @@ function flushFbqQueue() {
       }
     })
     fbqEventQueue = []
+    
+    // Clear any pending flush attempts
+    if (flushTimeout) {
+      clearTimeout(flushTimeout)
+      flushTimeout = null
+    }
   }
 }
 
@@ -35,24 +42,36 @@ function flushFbqQueue() {
  * Track an event with Facebook Pixel, or queue it until fbq is loaded.
  */
 export const trackFbEvent = (event: string, data?: unknown) => {
-  if (typeof window !== "undefined" && typeof window.fbq === "function") {
-    const fbq = window.fbq as FbqFn
-    try {
-      fbq("track", event, data)
-    } catch (error) {
-      console.error("Facebook Pixel tracking error:", error)
-    }
-    flushFbqQueue()
-  } else {
-    // fbq not ready -- enqueue the event
-    fbqEventQueue.push({ event, data })
-
-    if (typeof window !== "undefined") {
-      if (!window.fbq) {
-        console.warn("Facebook Pixel (fbq) not ready; event queued:", event)
+  if (typeof window !== "undefined") {
+    if (typeof window.fbq === "function") {
+      const fbq = window.fbq as FbqFn
+      try {
+        fbq("track", event, data)
+      } catch (error) {
+        console.error("Facebook Pixel tracking error:", error)
       }
-      // Attempt to flush again shortly
-      setTimeout(flushFbqQueue, 1000)
+    } else {
+      // fbq not ready -- enqueue the event
+      fbqEventQueue.push({ event, data })
+
+      // Set up retry to flush queue when fbq becomes available
+      if (!flushTimeout) {
+        flushTimeout = setTimeout(() => {
+          flushFbqQueue()
+          // Retry up to 3 times (3 seconds total)
+          let retries = 0
+          const retryInterval = setInterval(() => {
+            if (typeof window !== "undefined" && typeof window.fbq === "function") {
+              flushFbqQueue()
+              clearInterval(retryInterval)
+            }
+            retries++
+            if (retries >= 5) {
+              clearInterval(retryInterval)
+            }
+          }, 600)
+        }, 500)
+      }
     }
   }
 }
