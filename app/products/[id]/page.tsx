@@ -36,7 +36,6 @@ export default function ProductPage({ params }: any) {
 
     // Track ViewContent event
     trackFbEvent("ViewContent", {
-      content_name: foundProduct.name,
       content_ids: [foundProduct.id],
       content_type: "product",
       value: foundProduct.price,
@@ -46,8 +45,6 @@ export default function ProductPage({ params }: any) {
           id: foundProduct.id,
           quantity: 1,
           item_price: foundProduct.price,
-          name: foundProduct.name,
-          category: foundProduct.category,
         },
       ],
     })
@@ -71,7 +68,6 @@ export default function ProductPage({ params }: any) {
     
     // Track AddToCart event
     trackFbEvent("AddToCart", {
-      content_name: product.name,
       content_ids: [product.id],
       content_type: "product",
       value: product.price,
@@ -81,11 +77,6 @@ export default function ProductPage({ params }: any) {
           id: product.id,
           quantity: 1,
           item_price: product.price,
-          name: product.name,
-          category: product.category,
-          variant: selectedColor || "",
-          brand: "Moo Deng",
-          size: selectedSize || "",
         },
       ],
     })
