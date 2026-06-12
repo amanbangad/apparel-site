@@ -17,28 +17,31 @@ export default function FacebookPixel({ pixelId }: FacebookPixelProps) {
   const pathname = usePathname()
 
   useEffect(() => {
-    // Initialize Facebook Pixel
-    if (typeof window !== 'undefined') {
-      // Load Facebook Pixel script
+    // Load Facebook Pixel script only once
+    if (typeof window !== 'undefined' && !window.fbq) {
       const script = document.createElement('script')
-      script.innerHTML = `
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '${pixelId}');
-        fbq('track', 'PageView');
-      `
+      script.async = true
+      script.src = 'https://connect.facebook.net/en_US/fbevents.js'
+      
+      script.onload = () => {
+        // Initialize pixel only after script loads
+        if (window.fbq) {
+          window.fbq('init', pixelId)
+          window.fbq('track', 'PageView')
+        }
+      }
+      
       document.head.appendChild(script)
 
-      // Initialize pixel
-      if (window.fbq) {
-        window.fbq('init', pixelId)
-        window.fbq('track', 'PageView')
+      // Create the fbq stub if not already present
+      if (!window.fbq) {
+        window.fbq = function() {
+          window.fbq.callMethod ? window.fbq.callMethod.apply(window.fbq, arguments) : window.fbq.queue.push(arguments)
+        }
+        window.fbq.push = window.fbq
+        window.fbq.loaded = true
+        window.fbq.version = '2.0'
+        window.fbq.queue = []
       }
     }
   }, [pixelId])
@@ -52,23 +55,7 @@ export default function FacebookPixel({ pixelId }: FacebookPixelProps) {
 
   return (
     <>
-      {/* Facebook Pixel Code */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '${pixelId}');
-            fbq('track', 'PageView');
-          `,
-        }}
-      />
+      {/* Facebook Pixel noscript fallback */}
       <noscript>
         <img
           height="1"
