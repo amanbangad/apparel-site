@@ -36,7 +36,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID || '614139101427697'} />
+        <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID!} />
         <CartProvider>
           <div className="flex min-h-screen flex-col">
             <SkipToContent />
