@@ -28,15 +28,17 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.fbq=function(){window.fbq.callMethod?window.fbq.callMethod.apply(window.fbq,arguments):window.fbq.queue.push(arguments)};
+              if(!window.fbq){window.fbq=function(){window.fbq.callMethod?window.fbq.callMethod.apply(window.fbq,arguments):window.fbq.queue.push(arguments)};if(!window._fbq)window._fbq=window.fbq;}
               window.fbq.push=window.fbq;
               window.fbq.loaded=!0;
               window.fbq.version='2.0';
               window.fbq.queue=[];
+              window.fbq('init', '${process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID}');
+              window.fbq('track', 'PageView');
             `,
           }}
         />
-        <FacebookPixel pixelId={process.env.NEXT_PUBLIC_FACEBOOK_PIXEL_ID!} />
+        <FacebookPixel />
         <CartProvider>
           <div className="flex min-h-screen flex-col">
             <SkipToContent />
