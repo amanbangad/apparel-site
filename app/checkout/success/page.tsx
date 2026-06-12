@@ -86,63 +86,69 @@ export default function CheckoutSuccessPage() {
   /* -------------------------------------------------------------------------- */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    /* ---------------------- Generate / read order meta --------------------- */
-    let id = localStorage.getItem("orderId")
-    let date = localStorage.getItem("orderDate")
+    const processOrder = async () => {
+      /* ---------------------- Generate / read order meta --------------------- */
+      let id = localStorage.getItem("orderId")
+      let date = localStorage.getItem("orderDate")
 
-    if (!id) {
-      id = `ORD-${Math.floor(Math.random() * 1_000_000)}`
-      localStorage.setItem("orderId", id)
-    }
-    if (!date) {
-      date = new Date().toISOString()
-      localStorage.setItem("orderDate", date)
-    }
-
-    setOrderId(id)
-    setOrderDate(date)
-
-    /* -------------------------- Stored checkout info ----------------------- */
-    const stored = localStorage.getItem("checkoutDetails")
-    let parsed: CheckoutDetails | null = null
-    if (stored) {
-      try {
-        parsed = JSON.parse(stored) as CheckoutDetails
-        setCheckoutDetails(parsed)
-      } catch (err) {
-        console.error("Failed to parse checkout details", err)
+      if (!id) {
+        id = `ORD-${Math.floor(Math.random() * 1_000_000)}`
+        localStorage.setItem("orderId", id)
       }
-    }
+      if (!date) {
+        date = new Date().toISOString()
+        localStorage.setItem("orderDate", date)
+      }
 
-    /* ---------------------- Meta / Facebook Pixel event via analytics helper -------------------- */
-    trackFbEvent("Purchase", {
-      value: total,
-      currency: "USD",
-      content_ids: items.map((i) => i.product.id),
-      order_id: id,
-      // Customer information for advanced matching
-      em: parsed?.customer.email ? btoa(parsed.customer.email) : undefined,
-      ph: parsed?.customer.phone ? btoa(parsed.customer.phone) : undefined,
-      fn: parsed?.customer.firstName ? btoa(parsed.customer.firstName) : undefined,
-      ln: parsed?.customer.lastName ? btoa(parsed.customer.lastName) : undefined,
-      // Additional customer data
-      customer_information: {
-        email: parsed?.customer.email,
-        phone: parsed?.customer.phone,
-        first_name: parsed?.customer.firstName,
-        last_name: parsed?.customer.lastName,
-        shipping_address: {
-          address: parsed?.shipping.address,
-          city: parsed?.shipping.city,
-          state: parsed?.shipping.state,
-          zip: parsed?.shipping.zip,
+      setOrderId(id)
+      setOrderDate(date)
+
+      /* -------------------------- Stored checkout info ----------------------- */
+      const stored = localStorage.getItem("checkoutDetails")
+      let parsed: CheckoutDetails | null = null
+      if (stored) {
+        try {
+          parsed = JSON.parse(stored) as CheckoutDetails
+          setCheckoutDetails(parsed)
+        } catch (err) {
+          console.error("Failed to parse checkout details", err)
         }
       }
-    })
 
-    /* -------------------------- Clear cart & cleanup ----------------------- */
-    clearCart()
-    localStorage.removeItem("checkoutDetails")
+      /* ---------------------- Meta / Facebook Pixel event via analytics helper -------------------- */
+      await trackFbEvent(
+        "Purchase",
+        {
+          value: total,
+          currency: "USD",
+          content_type: "product",
+          content_ids: items.map((i) => i.product.id),
+          contents: items.map((i) => ({
+            id: i.product.id,
+            quantity: i.quantity,
+            item_price: i.product.price,
+          })),
+          order_id: id,
+          eventID: `purchase_${id}`,
+        },
+        {
+          // Customer information for advanced matching (will be SHA-256 hashed)
+          em: parsed?.customer.email,
+          ph: parsed?.customer.phone,
+          fn: parsed?.customer.firstName,
+          ln: parsed?.customer.lastName,
+          ct: parsed?.shipping.city,
+          st: parsed?.shipping.state,
+          zp: parsed?.shipping.zip,
+        },
+      )
+
+      /* -------------------------- Clear cart & cleanup ----------------------- */
+      clearCart()
+      localStorage.removeItem("checkoutDetails")
+    }
+
+    processOrder()
   }, []) // <-- runs exactly once on mount
 
   if (!orderId || !orderDate) return null
